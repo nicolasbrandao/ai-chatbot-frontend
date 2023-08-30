@@ -12,6 +12,7 @@ interface LoginButtonProps extends ButtonProps {
   text?: string
 }
 
+// TODO: Change this to google provider
 export function LoginButton({
   text = 'Login with GitHub',
   showGithubIcon = true,

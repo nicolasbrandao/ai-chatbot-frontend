@@ -26,7 +26,7 @@ interface ImageProps {
     id: string
   }
 }
-
+// TODO: Connect to KV to refactor this
 export default async function Image({ params }: ImageProps) {
   const chat = await getSharedChat(params.id)
 

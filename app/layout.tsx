@@ -11,10 +11,11 @@ import { Header } from '@/components/header'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Next.js AI Chatbot',
-    template: `%s - Next.js AI Chatbot`
+    // TODO: Dynamic metadata with strapi
+    default: 'Talk to the Bible',
+    template: `%s - Talk to the Bible`
   },
-  description: 'An AI-powered chatbot template built with Next.js and Vercel.',
+  description: 'Talk to the Bible - An AI-powered chatbot.',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' }
@@ -43,10 +44,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <Toaster />
         <Providers attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex min-h-screen flex-col">
             {/* @ts-ignore */}
             <Header />
-            <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
+            <main className="flex flex-1 flex-col bg-muted/50">{children}</main>
           </div>
           <TailwindIndicator />
         </Providers>
