@@ -1,10 +1,7 @@
-import { nanoid } from '@/lib/utils'
-import { Chat } from '@/components/chat'
-
-export const runtime = 'edge'
-
-export default function IndexPage() {
-  const id = nanoid()
-
-  return <Chat id={id} />
+export default function Home() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      Home
+    </main>
+  );
 }
