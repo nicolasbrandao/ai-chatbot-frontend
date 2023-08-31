@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { IconExternalLink } from '@/components/ui/icons'
-import { imageLoader } from '@/lib/image-loader'
+import imageLoader from '@/lib/image-loader'
 
 export interface UserMenuProps {
   user: Session['user']
