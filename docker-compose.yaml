@@ -13,7 +13,7 @@ services:
       - .:/ai-chatbot
       - /ai-chatbot/node_modules
     depends_on:
-      - redis
+      - serverless-redis-http
 
   redis:
     image: redis
@@ -29,6 +29,8 @@ services:
       SRH_MODE: env
       SRH_TOKEN: example_token
       SRH_CONNECTION_STRING: 'redis://redis:6379'
+    depends_on:
+      - redis
 
 networks:
   default:
