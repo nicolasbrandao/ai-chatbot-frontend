@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  ai-chatbot:
+    build:
+      context: .
+      target: development
+    env_file: .env
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/ai-chatbot
+      - /ai-chatbot/node_modules
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    restart: always
+  
+  serverless-redis-http:
+    ports:
+      - '8079:80'
+    image: hiett/serverless-redis-http:latest
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: example_token
+      SRH_CONNECTION_STRING: 'redis://redis:6379'
+
+networks:
+  default:
+    name: ai-chatbot-net
