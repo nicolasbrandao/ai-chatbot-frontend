@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import Image, { ImageLoader } from 'next/image'
 import { type Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { IconExternalLink } from '@/components/ui/icons'
+import { imageLoader } from '@/lib/image-loader'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -31,6 +32,7 @@ export function UserMenu({ user }: UserMenuProps) {
           <Button variant="ghost" className="pl-0">
             {user?.image ? (
               <Image
+                loader={imageLoader}
                 className="h-6 w-6 select-none rounded-full ring-1 ring-zinc-100/10 transition-opacity duration-300 hover:opacity-80"
                 src={user?.image ? `${user.image}&s=60` : ''}
                 alt={user.name ?? 'Avatar'}

@@ -5,11 +5,14 @@ module.exports = {
     serverActions: true,
   },
   images: {
+    loader: 'custom',
+    loaderFile: './lib/image-loader.ts',
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "avatars.githubusercontent.com",
+        hostname: "lh3.googleusercontent.com",
       }
-    ]
+    ],
+    domains: ["lh3.googleusercontent.com"]
   },
 };
