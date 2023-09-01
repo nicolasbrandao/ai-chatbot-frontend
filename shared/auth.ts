@@ -1,5 +1,8 @@
 import GoogleProvider from "next-auth/providers/google";
-import { SupabaseAdapter, SupabaseAdapterOptions } from "@auth/supabase-adapter";
+import {
+  SupabaseAdapter,
+  SupabaseAdapterOptions,
+} from "@auth/supabase-adapter";
 import { AuthOptions } from "next-auth";
 import { Adapter } from "next-auth/adapters";
 
@@ -11,7 +14,7 @@ const googleConfig = GoogleProvider({
 const options: SupabaseAdapterOptions = {
   secret: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
   url: process.env.SUPABASE_URL ?? "",
-}
+};
 
 const supabaseConfig = SupabaseAdapter(options);
 
