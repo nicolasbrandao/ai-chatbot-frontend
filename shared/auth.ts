@@ -1,19 +1,24 @@
 import GoogleProvider from "next-auth/providers/google";
-import { SupabaseAdapter } from "@auth/supabase-adapter";
+import { SupabaseAdapter, SupabaseAdapterOptions } from "@auth/supabase-adapter";
+import { AuthOptions } from "next-auth";
+import { Adapter } from "next-auth/adapters";
 
 const googleConfig = GoogleProvider({
   clientId: process.env.GOOGLE_CLIENT_ID ?? "",
   clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 });
 
-const supabaseConfig = SupabaseAdapter({
-  url: process.env.SUPABASE_URL ?? "",
+const options: SupabaseAdapterOptions = {
   secret: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-});
+  url: process.env.SUPABASE_URL ?? "",
+}
 
-const authConfig = {
+const supabaseConfig = SupabaseAdapter(options);
+
+const authConfig: AuthOptions = {
   providers: [googleConfig],
-  adapter: supabaseConfig,
+  // TODO: check out how to fix this
+  adapter: supabaseConfig as Adapter,
 };
 
 export default authConfig;
