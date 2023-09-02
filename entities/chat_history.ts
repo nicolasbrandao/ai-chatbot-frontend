@@ -1,5 +1,5 @@
-import { getSupabaseInstance } from "@/services/supabase";
-import { Database } from "@/types/database/supabase-generated.types";
+import { getSupabaseInstance } from "./../services/supabase";
+import { Database } from "./../types/database/supabase-generated.types";
 
 type ChatHistoryTable = Database["public"]["Tables"]["chat_history"];
 type ChatHistoryRow = ChatHistoryTable["Row"];
