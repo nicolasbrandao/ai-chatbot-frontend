@@ -11,12 +11,12 @@ const googleConfig = GoogleProvider({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 });
 
-const options: SupabaseAdapterOptions = {
+const supabaseOptions: SupabaseAdapterOptions = {
   secret: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
   url: process.env.SUPABASE_URL ?? "",
 };
 
-const supabaseConfig = SupabaseAdapter(options);
+const supabaseConfig = SupabaseAdapter(supabaseOptions);
 
 const authConfig: AuthOptions = {
   providers: [googleConfig],

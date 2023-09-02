@@ -16,8 +16,6 @@ const getAuthUserEmail = async () => {
 };
 
 export async function GET(req: NextRequest) {
-  console.log("batata");
-
   const userEmail = await getAuthUserEmail();
   console.log("userEmail", userEmail);
   if (userEmail == undefined)
