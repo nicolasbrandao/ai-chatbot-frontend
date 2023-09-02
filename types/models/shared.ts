@@ -4,7 +4,7 @@ export interface Message {
   createdAt: number;
 }
 
-export  interface ChatHistory {
+export interface ChatHistory {
   id: string;
   chat_history: Message[][];
   user_email: string;
