@@ -8,4 +8,5 @@ export interface ChatHistory {
   id: string;
   chat_history: Message[][];
   user_email: string;
+  created_at: number;
 }

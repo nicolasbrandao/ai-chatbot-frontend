@@ -5,9 +5,8 @@ type ChatHistoryTable = Database["public"]["Tables"]["chat_history"];
 type ChatHistoryRow = ChatHistoryTable["Row"];
 type OmitChatHistoryKeys = Omit<ChatHistoryRow, "id" | "created_at">;
 
-export async function listChatHistories(
-  email: string,
-): Promise<ChatHistoryRow[]> {
+export async function listChatHistories(): Promise<ChatHistoryRow[]> {
+  // email: string
   const supabase = getSupabaseInstance();
   const { data, error } = await supabase
     .from<"chat_history", ChatHistoryTable>("chat_history")
