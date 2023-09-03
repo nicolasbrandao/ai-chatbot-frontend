@@ -1,5 +1,5 @@
-import Chat from "@/components/Chat";
+import Table from "@/components/Chat/Table";
 
 export default function page() {
-  return <Chat />;
+  return <Table />;
 }
