@@ -5,21 +5,26 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
-export default function Chat() {
+interface ChatProps {
+  id?: string | number;
+}
+
+export default function Chat({ id }: ChatProps) {
   const [chat, setChat] = useState<Message[]>([]);
   const [history, setHistory] = useState<Message[][]>([]);
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false)
-  const [answer, setAnswer] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [answer, setAnswer] = useState("");
 
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api2/chat-history");
+        const res = await fetch(
+          `http://localhost:3001/api2/chat-history/${id}`,
+        );
         if (res.ok) {
-          const chats = await res.json();
-          const [firstChat, ...rest] = chats;
-          const { chat_history } = firstChat;
+          const chat = await res.json();
+          const { chat_history } = chat;
           setHistory(chat_history);
         } else {
           throw new Error("Request failed");
@@ -28,8 +33,8 @@ export default function Chat() {
         console.log("Error: ", e);
       }
     };
-    fetchChats();
-  }, []);
+    id && fetchChats();
+  }, [id]);
 
   useEffect(() => {
     const chat_history = history;
@@ -43,7 +48,7 @@ export default function Chat() {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    setIsLoading(true)
+    setIsLoading(true);
     e.preventDefault();
     const body = JSON.stringify({
       message,
@@ -57,7 +62,7 @@ export default function Chat() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Transfer-Encoding":'chunked',
+        "Transfer-Encoding": "chunked",
       },
       body,
     });
@@ -72,11 +77,11 @@ export default function Chat() {
           break;
         }
         aiResponse += new TextDecoder().decode(value);
-        setAnswer(aiResponse)
+        setAnswer(aiResponse);
       }
     }
 
-    setIsLoading(false)
+    setIsLoading(false);
 
     const newMessages: Message[] = [
       {
@@ -92,9 +97,8 @@ export default function Chat() {
     ];
 
     setHistory((prev) => [...prev, newMessages]);
-    setAnswer("")
+    setAnswer("");
   };
-
 
   return (
     <section className="flex flex-col w-full py-8 px-4">
@@ -104,15 +108,24 @@ export default function Chat() {
           .map((message, index) => {
             return <ChatBubble message={message} key={`${index}`} />;
           })}
-        {isLoading && <ChatBubble message={{type:"AI", message: answer, createdAt: Date.now()}} /> }
+        {isLoading && (
+          <ChatBubble
+            message={{ type: "AI", message: answer, createdAt: Date.now() }}
+          />
+        )}
         <form className="flex gap-4" onSubmit={handleSubmit}>
           <textarea
             className="textarea textarea-bordered w-full resize-none"
             onChange={(e) => handleChange(e)}
             placeholder="Write your message here..."
           />
-          <button disabled={isLoading} className="btn h-[100px]" type="submit" name="message">
-            {isLoading && (<span className="loading loading-spinner"></span>)}
+          <button
+            disabled={isLoading}
+            className="btn h-[100px]"
+            type="submit"
+            name="message"
+          >
+            {isLoading && <span className="loading loading-spinner"></span>}
             Send
           </button>
         </form>
