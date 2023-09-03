@@ -9,15 +9,11 @@ import {
 
 const router = express.Router();
 
-const getAuthUserEmail = async () => {
-  return "lgpelin92@gmail.com"
-};
-
 router.get("/", async (req, res) => {
-  const userEmail = await getAuthUserEmail();
-  if (!userEmail) return res.status(401).json({ error: "Unauthorized" });
+  // TODO - add authentication getting the supabase token and checking if the user is logged in
+  // if (!userEmail) return res.status(401).json({ error: "Unauthorized" });
 
-  const chatHistories = await listChatHistories(userEmail);
+  const chatHistories = await listChatHistories();
   res.json(chatHistories);
 });
 

@@ -31,12 +31,14 @@ function buildMessages(history: Message[][]) {
 
 router.post("/", async (req, res) => {
   try {
-    console.log("########################## CHORO ############################")
-
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('Transfer-Encoding', 'chunked');
-    console.log({ body: req.body })
-    const { message, systemMessage = "You are a helpful assistant", history = [] } = req.body;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Transfer-Encoding", "chunked");
+    console.log({ body: req.body });
+    const {
+      message,
+      systemMessage = "You are a helpful assistant",
+      history = [],
+    } = req.body;
 
     const model = new ChatOpenAI({ streaming: true });
     const historyMessages = buildMessages(history).flat();
@@ -46,7 +48,6 @@ router.post("/", async (req, res) => {
     });
 
     const chain = new ConversationChain({ llm: model, memory: memory });
-    const tokens = [];
 
     await chain.call(
       { input: message },
@@ -54,7 +55,7 @@ router.post("/", async (req, res) => {
         callbacks: [
           {
             handleLLMNewToken(token) {
-              res.write((token));
+              res.write(token);
             },
           },
         ],
@@ -63,10 +64,9 @@ router.post("/", async (req, res) => {
 
     res.end();
   } catch (e) {
-    console.log('Error: ', e);
+    console.log("Error: ", e);
     res.status(500).json({ error: e });
   }
 });
-
 
 export default router;
