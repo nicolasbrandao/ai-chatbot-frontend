@@ -25,7 +25,11 @@ const Table = <T,>({ columns, data, onRowClick }: TableProps<T>) => {
         </thead>
         <tbody>
           {data.map((row, rowIndex) => (
-            <tr key={rowIndex} onClick={() => onRowClick && onRowClick(row)}>
+            <tr
+              className={onRowClick ? "cursor-pointer" : ""}
+              key={rowIndex}
+              onClick={() => onRowClick && onRowClick(row)}
+            >
               {columns.map((col, colIndex) => (
                 <td key={colIndex}>
                   {col.render

@@ -1,6 +1,6 @@
 import express from "express";
 import next from "next";
-import { chatRoutes } from "./route";
+import { routes } from "./route";
 import cors from "cors";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -13,7 +13,7 @@ app.prepare().then(() => {
   // Use your combined routes
   server.use(express.json());
   server.use(cors());
-  server.use(chatRoutes);
+  server.use(routes);
   server.all("*", (req, res) => {
     return handle(req, res);
   });

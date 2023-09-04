@@ -16,7 +16,7 @@ export async function listChatHistories(): Promise<ChatHistoryRow[]> {
 }
 
 export async function getChatHistory(
-  id: string,
+  id: string
 ): Promise<ChatHistoryRow | null> {
   const supabase = getSupabaseInstance();
   const { data, error } = await supabase
@@ -29,29 +29,46 @@ export async function getChatHistory(
 }
 
 export async function createChatHistory(
-  newChatHistory: OmitChatHistoryKeys,
+  newChatHistory: OmitChatHistoryKeys
 ): Promise<ChatHistoryRow> {
   const supabase = getSupabaseInstance();
-  const { data, error } = await supabase
+
+  const res = await supabase
     .from<"chat_history", ChatHistoryTable>("chat_history")
     .insert([newChatHistory])
-    .single();
-  if (error) throw error;
-  return data!;
+    .select();
+
+  const { data, error } = res;
+  const rowData = data?.[0];
+  if (error) {
+    console.log({ error });
+    throw error;
+  }
+
+  console.log({ createdData: rowData });
+
+  return rowData!;
 }
 
 export async function updateChatHistory(
   id: string,
-  updates: OmitChatHistoryKeys,
-): Promise<ChatHistoryTable> {
+  updates: OmitChatHistoryKeys
+): Promise<ChatHistoryRow> {
+  console.log("updateChatHistory");
+
   const supabase = getSupabaseInstance();
+
+  console.log({ id, updates });
+
   const { data, error } = await supabase
     .from<"chat_history", ChatHistoryTable>("chat_history")
     .update(updates)
     .eq("id", id)
-    .single();
+    .select();
+
+  const rowData = data?.[0];
   if (error) throw error;
-  return data!;
+  return rowData!;
 }
 
 export async function deleteChatHistory(id: string): Promise<void> {

@@ -20,7 +20,36 @@ const supabaseConfig = SupabaseAdapter(supabaseOptions);
 
 const authConfig: AuthOptions = {
   providers: [googleConfig],
-  // TODO: check out how to fix this
+  callbacks: {
+    async jwt({ token, account, profile, user }) {
+      console.log(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ");
+      console.log({ token });
+      console.log({ account });
+      console.log({ profile });
+      console.log(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
+      // Persist the OAuth access_token and or the user id to the token right after signin
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return { ...token, ...user };
+    },
+    async session({ session, token, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.
+      console.log(" ################################");
+      console.log({ session });
+      console.log({ token });
+      console.log({ user });
+      console.log(" ################################");
+
+      session.accessToken = token?.id_token;
+
+      return {
+        ...session,
+        user: { ...session?.user, id: user?.id },
+      };
+    },
+  },
   adapter: supabaseConfig as Adapter,
 };
 

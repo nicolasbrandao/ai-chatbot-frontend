@@ -3,6 +3,7 @@
 import { Message } from "@/types/models/shared";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 interface ChatProps {
@@ -10,17 +11,20 @@ interface ChatProps {
 }
 
 export default function Chat({ id }: ChatProps) {
+  const session = useSession();
+  console.log({ session });
+
   const [chat, setChat] = useState<Message[]>([]);
   const [history, setHistory] = useState<Message[][]>([]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [answer, setAnswer] = useState("");
-
+  const { push } = useRouter();
   useEffect(() => {
     const fetchChats = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3001/api2/chat-history/${id}`,
+          `http://localhost:3001/api2/chat-history/${id}`
         );
         if (res.ok) {
           const chat = await res.json();
@@ -45,6 +49,60 @@ export default function Chat({ id }: ChatProps) {
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
+  };
+
+  const handleSave = async () => {
+    if (!id) {
+      createNewChat();
+    } else {
+      updateChat();
+    }
+  };
+
+  const createNewChat = async () => {
+    const body = JSON.stringify({
+      chat_history: history,
+      user_email: "lgpelin92@gmail.com",
+    });
+
+    const res = await fetch("http://localhost:3001/api2/chat-history", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body,
+    });
+
+    if (!res.ok) {
+      alert("Could not save chat");
+    } else {
+      alert("Chat saved");
+      const { id } = await res.json();
+      push(`/chat/${id}/`);
+    }
+  };
+
+  const updateChat = async () => {
+    const body = JSON.stringify({
+      id,
+      chat_history: history,
+    });
+
+    const res = await fetch(`http://localhost:3001/api2/chat-history/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+
+    if (!res.ok) {
+      alert("Could not save chat");
+    } else {
+      alert("Chat saved");
+      console.log(await res.json);
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -130,6 +188,9 @@ export default function Chat({ id }: ChatProps) {
           </button>
         </form>
       </div>
+      <button onClick={handleSave} disabled={isLoading} className="btn ">
+        Salve Chat
+      </button>
     </section>
   );
 }

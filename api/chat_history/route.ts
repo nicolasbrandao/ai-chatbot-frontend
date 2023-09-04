@@ -25,20 +25,23 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const newChatHistory = await createChatHistory(req.body);
-  res.status(201).json(newChatHistory);
+  res.status(200).json(newChatHistory);
 });
 
-router.put("/", async (req, res) => {
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log(" updating chat history");
+  console.log(req.body);
   if (!req.body.id) return res.json({ error: "Missing id parameter" });
 
-  const updatedChatHistory = await updateChatHistory(req.body.id, req.body);
+  const updatedChatHistory = await updateChatHistory(id, req.body);
   res.json(updatedChatHistory);
 });
 
-router.delete("/", async (req, res) => {
-  if (!req.body.id) return res.json({ error: "Missing id parameter" });
-
-  await deleteChatHistory(req.body.id);
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!id) return res.json({ error: "Missing id parameter" });
+  await deleteChatHistory(id);
   res.status(200).json("Deleted");
 });
 
