@@ -16,7 +16,7 @@ export async function listChatHistories(): Promise<ChatHistoryRow[]> {
 }
 
 export async function getChatHistory(
-  id: string,
+  id: string
 ): Promise<ChatHistoryRow | null> {
   const supabase = getSupabaseInstance();
   const { data, error } = await supabase
@@ -29,7 +29,7 @@ export async function getChatHistory(
 }
 
 export async function createChatHistory(
-  newChatHistory: OmitChatHistoryKeys,
+  newChatHistory: OmitChatHistoryKeys
 ): Promise<ChatHistoryRow> {
   const supabase = getSupabaseInstance();
 
@@ -52,13 +52,11 @@ export async function createChatHistory(
 
 export async function updateChatHistory(
   id: string,
-  updates: OmitChatHistoryKeys,
+  updates: OmitChatHistoryKeys
 ): Promise<ChatHistoryRow> {
   console.log("updateChatHistory");
 
   const supabase = getSupabaseInstance();
-
-  console.log({ id, updates });
 
   const { data, error } = await supabase
     .from<"chat_history", ChatHistoryTable>("chat_history")

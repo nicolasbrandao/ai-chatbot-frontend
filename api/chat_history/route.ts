@@ -17,32 +17,52 @@ router.get("/", async (req, res) => {
   res.json(chatHistories);
 });
 
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const chatHistory = await getChatHistory(id);
-  res.json(chatHistory);
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const chatHistory = await getChatHistory(id);
+    res.json(chatHistory);
+  } catch (e) {
+    console.log({ error: e });
+    next(e);
+  }
 });
 
-router.post("/", async (req, res) => {
-  const newChatHistory = await createChatHistory(req.body);
-  res.status(200).json(newChatHistory);
+router.post("/", async (req, res, next) => {
+  try {
+    const newChatHistory = await createChatHistory(req.body);
+    res.status(200).json(newChatHistory);
+  } catch (e) {
+    console.log({ error: e });
+    next(e);
+  }
 });
 
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  console.log(" updating chat history");
-  console.log(req.body);
-  if (!id) return res.json({ error: "Missing id parameter" });
+router.put("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(" updating chat history");
+    console.log(req.body);
+    if (!id) return res.json({ error: "Missing id parameter" });
 
-  const updatedChatHistory = await updateChatHistory(id, req.body);
-  res.json(updatedChatHistory);
+    const updatedChatHistory = await updateChatHistory(id, req.body);
+    res.json(updatedChatHistory);
+  } catch (e) {
+    console.log({ error: e });
+    next(e);
+  }
 });
 
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
-  if (!id) return res.json({ error: "Missing id parameter" });
-  await deleteChatHistory(id);
-  res.status(200).json("Deleted");
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.json({ error: "Missing id parameter" });
+    await deleteChatHistory(id);
+    res.status(200).json("Deleted");
+  } catch (e) {
+    console.log({ error: e });
+    next(e);
+  }
 });
 
 export default router;
