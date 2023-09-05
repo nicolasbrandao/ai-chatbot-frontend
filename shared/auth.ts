@@ -21,11 +21,12 @@ const supabaseConfig = SupabaseAdapter(supabaseOptions);
 const authConfig: AuthOptions = {
   providers: [googleConfig],
   callbacks: {
-    async jwt({ token, account, profile, user }) {
+    async jwt({ token, account, profile, user, session }) {
       console.log(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ");
       console.log({ token });
       console.log({ account });
       console.log({ profile });
+      session.accessToken = token?.id_token;
       console.log(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
       // Persist the OAuth access_token and or the user id to the token right after signin
