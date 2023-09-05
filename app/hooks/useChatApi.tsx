@@ -55,19 +55,19 @@ const fetchChatHistoryById = async (id: string): Promise<ChatHistory> => {
 };
 
 const createChatHistory = async (
-  newHistory: Partial<ChatHistory>
+  newHistory: Partial<ChatHistory>,
 ): Promise<ChatHistory> => {
   const { data } = await axios.post("/api2/chat-history", newHistory);
   return data;
 };
 
 const updateChatHistory = async (
-  updatedHistory: Partial<ChatHistory>
+  updatedHistory: Partial<ChatHistory>,
 ): Promise<ChatHistory> => {
   const { id, ...body } = updatedHistory;
   const { data } = await axios.put(
     `/api2/chat-history/${updatedHistory.id}`,
-    body
+    body,
   );
   return data;
 };
@@ -83,7 +83,7 @@ export const usePostChatMessage = () => {
       systemMessage?: string;
       history?: Message[][];
       setState: React.Dispatch<React.SetStateAction<string>>;
-    }) => postChatMessage(data)
+    }) => postChatMessage(data),
   );
 };
 

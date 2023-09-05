@@ -59,7 +59,7 @@ router.post("/", async (req, res) => {
             },
           },
         ],
-      }
+      },
     );
 
     res.end();
