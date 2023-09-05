@@ -9,12 +9,17 @@ import {
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  // TODO - add authentication getting the supabase token and checking if the user is logged in
-  // if (!userEmail) return res.status(401).json({ error: "Unauthorized" });
+router.get("/", async (req, res, next) => {
+  try {
+    // TODO - add authentication getting the supabase token and checking if the user is logged in
+    // if (!userEmail) return res.status(401).json({ error: "Unauthorized" });
 
-  const chatHistories = await listChatHistories();
-  res.json(chatHistories);
+    const chatHistories = await listChatHistories();
+    res.json(chatHistories);
+  } catch (e) {
+    console.log({ error: e });
+    next(e);
+  }
 });
 
 router.get("/:id", async (req, res, next) => {
