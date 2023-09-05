@@ -1,12 +1,12 @@
-interface Message {
-  id: string;
+export interface Message {
   type: "AI" | "USER" | "SYSTEM";
   message: string;
-  createdAt: string;
+  createdAt: number;
 }
 
-interface ChatHistory {
+export interface ChatHistory {
   id: string;
   chat_history: Message[][];
   user_email: string;
+  created_at: number;
 }
