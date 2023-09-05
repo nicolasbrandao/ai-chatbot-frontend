@@ -7,7 +7,6 @@ import { ChatHistory, Message } from "@/types/models/shared";
 import {
   useChatHistory,
   useCreateChatHistory,
-  usePostChatMessage,
   useUpdateChatHistory,
 } from "@/app/hooks/useChatApi";
 import ChatBubble from "../ChatBuble";

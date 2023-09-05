@@ -3,7 +3,7 @@
 import Table, { Column } from "./../Table";
 import { ChatHistory, Message } from "@/types/models/shared";
 import { useRouter } from "next/navigation";
-import { useChatHistories } from "@/app/hooks/useChatApi";
+import { useChatHistories, useDeleteChatHistory } from "@/app/hooks/useChatApi";
 
 const ChatsTable: React.FC = () => {
   const { data: histories, isLoading } = useChatHistories();
@@ -24,14 +24,24 @@ const ChatsTable: React.FC = () => {
         <CustomChatHistoryComponent data={data as Message[][]} />
       ),
     },
+    {
+      header: "Delete",
+      accessor: "id",
+      render: (data) => <CustomDeleteComponent id={data as string | number} />,
+    },
   ];
 
   return (
-    <Table
-      columns={columns}
-      data={histories || []}
-      onRowClick={handleRowClick}
-    />
+    <div>
+      <Table
+        columns={columns}
+        data={histories || []}
+        onRowClick={handleRowClick}
+      />
+      <button onClick={() => push("/chat/new")} className="btn ">
+        New Chat
+      </button>
+    </div>
   );
 };
 
@@ -42,7 +52,6 @@ const CustomChatHistoryComponent: React.FC<{ data: Message[][] }> = ({
 }) => {
   const chatHistory = data.flat();
   const lastThreeItems = chatHistory.slice(-3);
-
   return (
     <div>
       {lastThreeItems.map((item, index) => (
@@ -50,6 +59,33 @@ const CustomChatHistoryComponent: React.FC<{ data: Message[][] }> = ({
           {item.type}:{item.message}
         </div>
       ))}
+    </div>
+  );
+};
+
+const CustomDeleteComponent: React.FC<{ id: number | string }> = ({ id }) => {
+  const deleteChatHistory = useDeleteChatHistory();
+
+  const handleDelete = async () => {
+    try {
+      await deleteChatHistory.mutateAsync(`${id}`);
+      alert("Deleted Successfully");
+    } catch (e) {
+      alert("Something went wrong");
+      console.log({ e });
+    }
+  };
+  return (
+    <div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDelete();
+        }}
+        className="btn btn-warning"
+      >
+        Delete {id}
+      </button>
     </div>
   );
 };
