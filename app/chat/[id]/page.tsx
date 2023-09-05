@@ -1,4 +1,4 @@
-import Chat from "@/components/Chat/Chat";
+import Chat from "@/app/components/Chat/Chat";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
