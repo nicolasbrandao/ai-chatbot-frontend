@@ -1,3 +1,5 @@
+import { Request, Response, NextFunction } from "express";
+
 import express from "express";
 import next from "next";
 import { routes } from "./route";
@@ -14,6 +16,7 @@ app.prepare().then(() => {
   server.use(express.json());
   server.use(cors());
   server.use(routes);
+
   server.all("*", (req, res) => {
     return handle(req, res);
   });

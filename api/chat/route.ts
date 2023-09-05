@@ -1,3 +1,5 @@
+import { Request, Response, NextFunction } from "express";
+
 import express from "express";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { ConversationChain } from "langchain/chains";
@@ -29,7 +31,7 @@ function buildMessages(history: Message[][]) {
   return history.map((messages) => messages.map(buildMessage));
 }
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   try {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.setHeader("Transfer-Encoding", "chunked");
@@ -59,13 +61,13 @@ router.post("/", async (req, res) => {
             },
           },
         ],
-      },
+      }
     );
 
     res.end();
   } catch (e) {
     console.log("Error: ", e);
-    res.status(500).json({ error: e });
+    next(e);
   }
 });
 
