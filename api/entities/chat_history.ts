@@ -1,5 +1,5 @@
-import { getSupabaseInstance } from "./../services/supabase";
-import { Database } from "./../types/database/supabase-generated.types";
+import { getSupabaseInstance } from "../services/supabase";
+import { Database } from "../../types/database/supabase-generated.types";
 
 type ChatHistoryTable = Database["public"]["Tables"]["chat_history"];
 type ChatHistoryRow = ChatHistoryTable["Row"];
@@ -67,7 +67,10 @@ export async function updateChatHistory(
     .select();
 
   const rowData = data?.[0];
-  if (error) throw error;
+  if (error) {
+    console.log({ error });
+    throw error;
+  }
   return rowData!;
 }
 

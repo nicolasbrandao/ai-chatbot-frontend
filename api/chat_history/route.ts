@@ -5,7 +5,7 @@ import {
   createChatHistory,
   updateChatHistory,
   deleteChatHistory,
-} from "./../../entities/chat_history";
+} from "../entities/chat_history";
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.put("/:id", async (req, res) => {
   const { id } = req.params;
   console.log(" updating chat history");
   console.log(req.body);
-  if (!req.body.id) return res.json({ error: "Missing id parameter" });
+  if (!id) return res.json({ error: "Missing id parameter" });
 
   const updatedChatHistory = await updateChatHistory(id, req.body);
   res.json(updatedChatHistory);
