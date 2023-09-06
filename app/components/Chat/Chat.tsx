@@ -9,7 +9,7 @@ import {
   useCreateChatHistory,
   useUpdateChatHistory,
 } from "@/app/hooks/useChatApi";
-import ChatBubble from "../ChatBuble";
+import ChatBubble from "../ChatBubble";
 import { useRouter } from "next/navigation";
 
 export default function Chat({ id }: { id?: string | number }) {

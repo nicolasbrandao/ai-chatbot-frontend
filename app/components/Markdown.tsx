@@ -2,33 +2,8 @@
 import React, { ReactNode } from "react";
 import MarkdownTOJSX from "markdown-to-jsx";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export type MarkdownProps = { markdown?: string };
-const m = `
-# Title
-## Title
-### Title
-const a = 1
-
-\`\`\`go 
-var a = 1 
-\`\`\`
-
-teste
-
-\`\`\`javascript 
-const a = 1 
-\`\`\`
-
-texto mais inline code \`const b =2 \` bla depois do code
-
-
-\`\`\`typescript
-const c : number = 3
-const d : string = "teste ententendo"
-\`\`\`
-  `;
 
 const CodeBlock = ({ children }: { children: string }) => (
   <code
@@ -55,13 +30,19 @@ const PreBlock = ({ children }: PreBlockProps) => {
     console.log({ language });
 
     return (
-      <SyntaxHighlighter
-        language={language}
-        className="border-2 cursor-pointer"
-        onClick={() => navigator.clipboard.writeText(children.props.children)}
-      >
-        {children.props.children}
-      </SyntaxHighlighter>
+      <div className="bg-black border-black rounded my-4">
+        <div className="flex justify-between p-2 text-xs">
+          <p>{language}</p>
+          <div className="cursor-pointer" onClick={() => navigator.clipboard.writeText(children.props.children)}>Copy code</div>
+        </div>
+        <SyntaxHighlighter
+          language={language}
+          className="rounded-b"
+        >
+          {children.props.children}
+        </SyntaxHighlighter>
+      </div>
+
     );
   }
 
@@ -82,7 +63,7 @@ const H3 = ({ children, ...props }: any) => (
   <h3 className="text-xl">{children}</h3>
 );
 
-const Markdown: React.FC<MarkdownProps> = ({ markdown = m }) => {
+const Markdown: React.FC<MarkdownProps> = ({ markdown = "" }) => {
   console.log();
 
   return (
