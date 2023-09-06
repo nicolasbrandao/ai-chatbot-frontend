@@ -29,7 +29,9 @@ export default function ChatBubble({ message }: { message: Message }) {
             {new Date(message.createdAt).toISOString()}
           </time>
         </div>
-        <div className="chat-bubble"><Markdown markdown={message.message}/></div>
+        <div className="chat-bubble">
+          <Markdown markdown={message.message} />
+        </div>
         <div className="chat-footer opacity-50">Message Status</div>
       </div>
     </>
