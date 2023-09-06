@@ -62,7 +62,7 @@ router.post("/", async (req, res, next) => {
             },
           },
         ],
-      }
+      },
     );
 
     res.end();
