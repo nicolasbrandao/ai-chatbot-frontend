@@ -164,9 +164,9 @@ export default function Chat({ id }: { id?: string | number }) {
           <button
             onClick={handleSave}
             disabled={isNewMessageLoading}
-            className="btn "
+            className="btn"
           >
-            Salve Chat
+            Save Chat
           </button>
         </div>
       </div>
