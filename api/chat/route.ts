@@ -31,6 +31,8 @@ function buildMessages(history: Message[][]) {
   return history.map((messages) => messages.map(buildMessage));
 }
 
+const model = new ChatOpenAI({ modelName: "gpt-4", streaming: true });
+
 router.post("/", async (req, res, next) => {
   try {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -42,7 +44,6 @@ router.post("/", async (req, res, next) => {
       history = [],
     } = req.body;
 
-    const model = new ChatOpenAI({ streaming: true });
     const historyMessages = buildMessages(history).flat();
 
     const memory = new BufferMemory({

@@ -14,7 +14,7 @@ interface TableProps<T> {
 
 const Table = <T,>({ columns, data, onRowClick }: TableProps<T>) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-auto">
       <table className="table">
         <thead>
           <tr>
@@ -26,7 +26,7 @@ const Table = <T,>({ columns, data, onRowClick }: TableProps<T>) => {
         <tbody>
           {data.map((row, rowIndex) => (
             <tr
-              className={onRowClick ? "cursor-pointer" : ""}
+              className={onRowClick ? "cursor-pointer hover" : "hover"}
               key={rowIndex}
               onClick={() => onRowClick && onRowClick(row)}
             >
