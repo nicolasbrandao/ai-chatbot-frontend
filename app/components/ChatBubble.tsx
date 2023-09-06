@@ -2,6 +2,7 @@ import { Message } from "@/types/models/shared";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Markdown from "./Markdown";
+import { dateFormatter } from "@/shared/utils";
 
 export default function ChatBubble({ message }: { message: Message }) {
   const session = useSession();
@@ -18,15 +19,15 @@ export default function ChatBubble({ message }: { message: Message }) {
             <Image
               src={isAiMessage ? aiImage : humanImage}
               alt="AI"
-              width={30}
-              height={30}
+              width={50}
+              height={50}
             />
           </div>
         </div>
         <div className="chat-header">
           {isAiMessage ? "AI" : userName}
-          <time className="text-xs opacity-50">
-            {new Date(message.createdAt).toISOString()}
+          <time className="text-xs opacity-50 pl-2">
+            {dateFormatter(new Date(message.createdAt).toISOString())}
           </time>
         </div>
         <div className="chat-bubble">
