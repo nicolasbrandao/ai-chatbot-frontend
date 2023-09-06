@@ -1,7 +1,8 @@
 "use client";
 import React, { ReactNode } from "react";
 import MarkdownTOJSX from "markdown-to-jsx";
-import SyntaxHighlighter from "react-syntax-highlighter";
+import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
+import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export type MarkdownProps = { markdown?: string };
 
@@ -31,13 +32,14 @@ const PreBlock = ({ children }: PreBlockProps) => {
 
     return (
       <div className="bg-black border-black rounded my-4">
-        <div className="flex justify-between p-2 text-xs">
+        <div className="flex justify-between px-2 pt-2 text-xs">
           <p>{language}</p>
           <div className="cursor-pointer" onClick={() => navigator.clipboard.writeText(children.props.children)}>Copy code</div>
         </div>
         <SyntaxHighlighter
           language={language}
           className="rounded-b"
+          style={materialDark}
         >
           {children.props.children}
         </SyntaxHighlighter>
