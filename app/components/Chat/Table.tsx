@@ -32,16 +32,19 @@ const ChatsTable: React.FC = () => {
   ];
 
   return (
-    <div>
+    <>
       <Table
         columns={columns}
         data={histories || []}
         onRowClick={handleRowClick}
       />
-      <button onClick={() => push("/chat/new")} className="btn ">
+      <button
+        className="sticky bottom-10 left-10 z-50 btn"
+        onClick={() => push("/chat/new")}
+      >
         New Chat
       </button>
-    </div>
+    </>
   );
 };
 

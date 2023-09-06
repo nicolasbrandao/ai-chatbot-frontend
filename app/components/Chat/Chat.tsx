@@ -37,18 +37,23 @@ export default function Chat({ id }: { id?: string | number }) {
   }, [answer]);
 
   useEffect(() => {
+    const debounce = setTimeout(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    }, 500);
+
     if (chatHistory) {
       setChat(chatHistory.flat());
     }
+    return () => clearTimeout(debounce);
   }, [chatHistory]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e?: FormEvent<HTMLFormElement>) => {
     setIsNewMessageLoading(true);
-    e.preventDefault();
+    e?.preventDefault();
     const body = JSON.stringify({
       message,
       history: chatHistory,
@@ -68,6 +73,8 @@ export default function Chat({ id }: { id?: string | number }) {
 
     if (!res.ok) throw new Error("Could not send message");
 
+    setMessage("");
+
     const reader = res.body?.getReader();
     if (reader) {
       while (true) {
@@ -76,6 +83,8 @@ export default function Chat({ id }: { id?: string | number }) {
           break;
         }
         aiResponse += new TextDecoder().decode(value);
+        // Scroll down to bottom everytime rec eive new message
+        window.scrollTo(0, document.body.scrollHeight);
         setAnswer(aiResponse);
       }
     }
@@ -116,7 +125,7 @@ export default function Chat({ id }: { id?: string | number }) {
   };
 
   return (
-    <section className="flex flex-col w-full py-8 px-4">
+    <section className="flex flex-col w-full h-full">
       <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
         {chat
           .filter((message) => message.type !== "SYSTEM")
@@ -128,32 +137,39 @@ export default function Chat({ id }: { id?: string | number }) {
             message={{ type: "AI", message: answer, createdAt: Date.now() }}
           />
         )}
-        <form className="flex gap-4" onSubmit={handleSubmit}>
-          <textarea
-            className="textarea textarea-bordered w-full resize-none"
-            onChange={(e) => handleChange(e)}
-            placeholder="Write your message here..."
-          />
+        <div className="flex flex-col gap-4 sticky bottom-0 z-50">
+          <form className="flex gap-4" onSubmit={handleSubmit}>
+            <textarea
+              className="textarea textarea-bordered w-full resize-none"
+              value={message}
+              onChange={(e) => handleChange(e)}
+              onKeyUp={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) handleSubmit();
+              }}
+              placeholder="Write your message here..."
+            />
+            <button
+              disabled={isNewMessageLoading}
+              className="btn h-[100px]"
+              type="submit"
+              name="message"
+            >
+              {isNewMessageLoading && (
+                <span className="loading loading-spinner"></span>
+              )}
+              Send
+            </button>
+          </form>
+
           <button
+            onClick={handleSave}
             disabled={isNewMessageLoading}
-            className="btn h-[100px]"
-            type="submit"
-            name="message"
+            className="btn "
           >
-            {isNewMessageLoading && (
-              <span className="loading loading-spinner"></span>
-            )}
-            Send
+            Salve Chat
           </button>
-        </form>
+        </div>
       </div>
-      <button
-        onClick={handleSave}
-        disabled={isNewMessageLoading}
-        className="btn "
-      >
-        Salve Chat
-      </button>
     </section>
   );
 }

@@ -20,8 +20,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <NavBar />
-          {children}
+          <div className="flex justify-center items-center h-full flex-col">
+            <NavBar />
+            <div className="p-4">{children}</div>
+          </div>
         </Providers>
       </body>
     </html>
