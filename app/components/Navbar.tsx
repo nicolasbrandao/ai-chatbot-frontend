@@ -26,10 +26,10 @@ const NavBar: React.FC = ({}) => {
         <label tabIndex={0} className="rounded-full">
           {session && session!.data?.user ? (
             !userImage ? (
-              <UserCircleIcon className="h-[40px] w-[40px]" />
+              <UserCircleIcon className="h-[40px] w-[40px] cursor-pointer" />
             ) : (
               <Image
-                className="rounded-full"
+                className="rounded-full cursor-pointer"
                 src={userImage}
                 alt="User Image"
                 width={40}
