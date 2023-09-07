@@ -1,5 +1,18 @@
-import Table from "@/app/components/Chat/Table";
+"use client";
+import Chat from "@/app/components/Chat/Chat";
+import { useChat } from "@/app/hooks/useChat";
+import ChatHeader from "../components/Chat/ChatHeader";
 
-export default function page() {
-  return <Table />;
+export default function Page({ params }: { params: { id: string } }) {
+  const chat = useChat();
+  const { chatHistory } = chat;
+
+  const title = chatHistory?.title ?? "Untitled";
+
+  return (
+    <>
+      <ChatHeader title={title} />
+      <Chat {...chat} />
+    </>
+  );
 }
