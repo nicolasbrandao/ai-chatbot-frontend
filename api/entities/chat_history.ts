@@ -1,9 +1,10 @@
-import { getSupabaseInstance } from "../services/supabase";
-import { Database } from "../../types/database/supabase-generated.types";
+import {
+  ChatHistoryRow,
+  ChatHistoryTable,
+  OmitChatHistoryKeys,
+} from "@/types/models/shared";
 
-type ChatHistoryTable = Database["public"]["Tables"]["chat_history"];
-type ChatHistoryRow = ChatHistoryTable["Row"];
-type OmitChatHistoryKeys = Omit<ChatHistoryRow, "id" | "created_at">;
+import { getSupabaseInstance } from "../services/supabase";
 
 export async function listChatHistories(): Promise<ChatHistoryRow[]> {
   // email: string

@@ -28,6 +28,7 @@ function buildMessage(message: Message) {
 }
 
 function buildMessages(history: Message[][]) {
+  if (!history) return [];
   return history.map((messages) => messages.map(buildMessage));
 }
 
@@ -62,7 +63,7 @@ router.post("/", async (req, res, next) => {
             },
           },
         ],
-      },
+      }
     );
 
     res.end();
