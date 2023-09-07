@@ -30,7 +30,7 @@ const ChatsTable: React.FC = () => {
     },
   ];
 
-  return (
+  return !isLoading ? (
     <>
       <Table
         columns={columns}
@@ -44,6 +44,8 @@ const ChatsTable: React.FC = () => {
         New Chat
       </button>
     </>
+  ) : (
+    <div className="loading loading-lg"></div>
   );
 };
 

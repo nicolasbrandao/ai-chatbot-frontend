@@ -1,129 +1,30 @@
 "use client";
 
-import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Message } from "@/types/models/shared";
-import {
-  useChatHistory,
-  useCreateChatHistory,
-  useUpdateChatHistory,
-} from "@/app/hooks/useChatApi";
+
 import ChatBubble from "../ChatBubble";
-import { useRouter } from "next/navigation";
 import { PaperAirplaneIcon, BookmarkIcon } from "@heroicons/react/24/outline";
+import { ChangeEvent, FormEvent } from "react";
 
-export default function Chat({ id }: { id?: string | number }) {
-  const { data: fetchedChatHistory, isLoading: isChatHistoryLoading } =
-    useChatHistory(id?.toString() ?? " ");
+interface ChatPropos {
+  chat: Message[];
+  handleChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  handleSave: () => Promise<void>;
+  handleSubmit: (e?: FormEvent<HTMLFormElement> | undefined) => Promise<void>;
+  isNewMessageLoading: boolean;
+  message: string;
+  answer: string;
+}
 
-  const [message, setMessage] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [chat, setChat] = useState<Message[]>([]);
-  const [isNewMessageLoading, setIsNewMessageLoading] = useState(false);
-  const updateChatHistory = useUpdateChatHistory();
-  const [chatHistory, setChatHistory] = useState<Message[][]>();
-  const { push } = useRouter();
-  const createChatHistory = useCreateChatHistory();
-  const { data: session } = useSession();
-  const user_email = session?.user?.email!;
-
-  useEffect(() => {
-    console.log({ fetchedChatHistory });
-    fetchedChatHistory && setChatHistory(fetchedChatHistory?.chat_history);
-  }, [fetchedChatHistory]);
-
-  useEffect(() => {
-    console.log({ answer });
-  }, [answer]);
-
-  useEffect(() => {
-    const debounce = setTimeout(() => {
-      window.scrollTo(0, document.body.scrollHeight);
-    }, 500);
-
-    if (chatHistory) {
-      setChat(chatHistory.flat());
-    }
-    return () => clearTimeout(debounce);
-  }, [chatHistory]);
-
-  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleSubmit = async (e?: FormEvent<HTMLFormElement>) => {
-    setIsNewMessageLoading(true);
-    e?.preventDefault();
-    const body = JSON.stringify({
-      message,
-      history: chatHistory,
-      SystemMessage: "Act like a helpful assistant",
-    });
-
-    let aiResponse = "";
-
-    const res = await fetch("http://localhost:3001/api2/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Transfer-Encoding": "chunked",
-      },
-      body,
-    });
-
-    if (!res.ok) throw new Error("Could not send message");
-
-    setMessage("");
-
-    const reader = res.body?.getReader();
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        aiResponse += new TextDecoder().decode(value);
-        // Scroll down to bottom everytime rec eive new message
-        window.scrollTo(0, document.body.scrollHeight);
-        setAnswer(aiResponse);
-      }
-    }
-
-    setIsNewMessageLoading(false);
-
-    const newMessages: Message[] = [
-      {
-        type: "USER",
-        message,
-        createdAt: Date.now(),
-      },
-      {
-        type: "AI",
-        message: aiResponse,
-        createdAt: Date.now(),
-      },
-    ];
-
-    setChatHistory((prev) => [...(prev ?? []), newMessages]);
-    setAnswer("");
-  };
-
-  const createNewChat = async () =>
-    createChatHistory.mutateAsync({ user_email, chat_history: chatHistory });
-
-  const updateChat = async () =>
-    updateChatHistory.mutateAsync({
-      user_email,
-      chat_history: chatHistory ? chatHistory : [],
-      id: id?.toString()!,
-    });
-
-  const handleSave = async () => {
-    const { id: savedId } = !id ? await createNewChat() : await updateChat();
-    push(`/chat/${id ?? savedId}`);
-    console.log({ savedId });
-  };
-
+const Chat: React.FC<ChatPropos> = ({
+  chat,
+  handleChange,
+  handleSave,
+  handleSubmit,
+  isNewMessageLoading,
+  message,
+  answer,
+}) => {
   return (
     <section className="flex flex-col w-full h-full">
       <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
@@ -173,4 +74,6 @@ export default function Chat({ id }: { id?: string | number }) {
       </div>
     </section>
   );
-}
+};
+
+export default Chat;
