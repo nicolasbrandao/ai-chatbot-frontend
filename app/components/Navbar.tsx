@@ -42,7 +42,7 @@ const NavBar: React.FC = ({}) => {
         </label>
         <ul
           tabIndex={0}
-          className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52"
+          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
         >
           <li>
             <button onClick={() => signOut()}>Sign Out</button>

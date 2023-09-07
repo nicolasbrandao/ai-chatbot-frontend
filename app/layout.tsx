@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="forest">
+    <html lang="en" data-theme="dark">
       <body className={`${inter.className} min-h-screen`}>
         <Providers>
           <div className="flex justify-center items-center min-h-full flex-col">
