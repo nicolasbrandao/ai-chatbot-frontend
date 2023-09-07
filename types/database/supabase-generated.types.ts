@@ -14,18 +14,21 @@ export interface Database {
           chat_history: Json[] | null;
           created_at: string;
           id: number;
+          title: string | null;
           user_email: string;
         };
         Insert: {
           chat_history?: Json[] | null;
           created_at?: string;
           id?: number;
+          title?: string | null;
           user_email: string;
         };
         Update: {
           chat_history?: Json[] | null;
           created_at?: string;
           id?: number;
+          title?: string | null;
           user_email?: string;
         };
         Relationships: [];

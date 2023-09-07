@@ -6,41 +6,45 @@ import axios from "axios";
 
 import { ChatHistory, Message } from "@/types/models/shared";
 
-// Chat API
-const postChatMessage = async (data: {
-  message: string;
-  systemMessage?: string;
-  history?: Message[][];
-  setState: React.Dispatch<React.SetStateAction<string>>;
-}): Promise<void> => {
-  const { message, systemMessage, history, setState } = data;
+export const useSubmitChatMessage = () => {
+  return useMutation(
+    async (data: {
+      message: string;
+      history?: Message[][];
+      setState: React.Dispatch<React.SetStateAction<string>>;
+    }) => {
+      const { message, history, setState } = data;
+      let aiResponse = "";
 
-  const res = await fetch("/api2/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Transfer-Encoding": "chunked",
-    },
-    body: JSON.stringify({ message, systemMessage, history }),
-  });
+      const res = await fetch("http://localhost:3001/api2/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Transfer-Encoding": "chunked",
+        },
+        body: JSON.stringify({
+          message,
+          history,
+          SystemMessage: "Act like a helpful assistant",
+        }),
+      });
 
-  if (!res.ok) throw new Error("Could not send message");
+      if (!res.ok) throw new Error("Could not send message");
 
-  const reader = res.body?.getReader();
-  if (reader) {
-    let aiResponse = "";
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
+      const reader = res.body?.getReader();
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+          aiResponse += new TextDecoder().decode(value);
+          setState(aiResponse);
+        }
       }
-
-      console.log({ aiResponse });
-      aiResponse += new TextDecoder().decode(value);
-
-      setState(aiResponse);
+      return aiResponse;
     }
-  }
+  );
 };
 
 // Chat History API
@@ -55,36 +59,25 @@ const fetchChatHistoryById = async (id: string): Promise<ChatHistory> => {
 };
 
 const createChatHistory = async (
-  newHistory: Partial<ChatHistory>,
+  newHistory: Partial<ChatHistory>
 ): Promise<ChatHistory> => {
   const { data } = await axios.post("/api2/chat-history", newHistory);
   return data;
 };
 
 const updateChatHistory = async (
-  updatedHistory: Partial<ChatHistory>,
+  updatedHistory: Partial<ChatHistory>
 ): Promise<ChatHistory> => {
   const { id, ...body } = updatedHistory;
   const { data } = await axios.put(
     `/api2/chat-history/${updatedHistory.id}`,
-    body,
+    body
   );
   return data;
 };
 
 const deleteChatHistory = async (id: string): Promise<void> => {
   await axios.delete(`/api2/chat-history/${id}`);
-};
-
-export const usePostChatMessage = () => {
-  return useMutation(
-    (data: {
-      message: string;
-      systemMessage?: string;
-      history?: Message[][];
-      setState: React.Dispatch<React.SetStateAction<string>>;
-    }) => postChatMessage(data),
-  );
 };
 
 export const useChatHistories = () => {
