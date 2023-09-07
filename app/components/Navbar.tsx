@@ -5,9 +5,11 @@ import { UserCircleIcon, SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import Drawer from "./Drawer";
 import { useEffect } from "react";
 import { themeChange } from "theme-change";
+import SignInButton from "./SignInButton";
 
 const NavBar: React.FC = ({}) => {
-  const { data } = useSession();
+  const session = useSession();
+  const { data } = session;
   const userImage = data?.user?.image;
 
   useEffect(() => {
@@ -22,7 +24,7 @@ const NavBar: React.FC = ({}) => {
 
       <div className="dropdown dropdown-end">
         <label tabIndex={0} className="rounded-full">
-          {!userImage ? (
+          {(session && session!.data?.user) ? (!userImage ? (
             <UserCircleIcon className="h-[40px] w-[40px]" />
           ) : (
             <Image
@@ -32,7 +34,7 @@ const NavBar: React.FC = ({}) => {
               width={40}
               height={40}
             />
-          )}
+          )) : (<SignInButton />)}
         </label>
         <ul
           tabIndex={0}
