@@ -30,7 +30,7 @@ export default function ChatBubble({ message }: { message: Message }) {
             {dateFormatter(new Date(message.createdAt).toISOString())}
           </time>
         </div>
-        <div className="chat-bubble">
+        <div className="chat-bubble bg-base-200 text-base-content">
           <Markdown markdown={message.message} />
         </div>
         <div className="chat-footer opacity-50">Message Status</div>

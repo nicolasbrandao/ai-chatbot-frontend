@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 import MarkdownTOJSX from "markdown-to-jsx";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { ClipboardIcon } from "@heroicons/react/24/outline";
 
 export type MarkdownProps = { markdown?: string };
 
@@ -31,15 +32,16 @@ const PreBlock = ({ children }: PreBlockProps) => {
     console.log({ language });
 
     return (
-      <div className="bg-black border-black rounded my-4">
+      <div className="bg-base-300 rounded my-4">
         <div className="flex justify-between px-2 pt-2 text-xs">
           <p>{language}</p>
           <div
-            className="cursor-pointer"
+            className="flex gap-1 cursor-pointer"
             onClick={() =>
               navigator.clipboard.writeText(children.props.children)
             }
           >
+            <ClipboardIcon className="h-4 w-4"/>
             Copy code
           </div>
         </div>
@@ -55,7 +57,7 @@ const PreBlock = ({ children }: PreBlockProps) => {
   }
 
   return (
-    <div className="border bg-black">
+    <div className="border bg-base-100">
       <pre className="border-2">{children}</pre>
     </div>
   );
