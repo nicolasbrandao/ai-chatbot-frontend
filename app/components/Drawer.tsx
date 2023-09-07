@@ -46,5 +46,5 @@ export default function Drawer() {
         </ul>
       </div>
     </div>
-  )
+  );
 }

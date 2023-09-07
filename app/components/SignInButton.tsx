@@ -6,8 +6,16 @@ export default function SignInButton() {
   const { data: session } = useSession();
 
   if (session && session.user) {
-    return <button className="btn" onClick={() => signOut()}>Sign Out</button>;
+    return (
+      <button className="btn" onClick={() => signOut()}>
+        Sign Out
+      </button>
+    );
   }
 
-  return <button className="btn" onClick={() => signIn()}>Sign In</button>;
+  return (
+    <button className="btn" onClick={() => signIn()}>
+      Sign In
+    </button>
+  );
 }

@@ -24,17 +24,21 @@ const NavBar: React.FC = ({}) => {
 
       <div className="dropdown dropdown-end">
         <label tabIndex={0} className="rounded-full">
-          {(session && session!.data?.user) ? (!userImage ? (
-            <UserCircleIcon className="h-[40px] w-[40px]" />
+          {session && session!.data?.user ? (
+            !userImage ? (
+              <UserCircleIcon className="h-[40px] w-[40px]" />
+            ) : (
+              <Image
+                className="rounded-full"
+                src={userImage}
+                alt="User Image"
+                width={40}
+                height={40}
+              />
+            )
           ) : (
-            <Image
-              className="rounded-full"
-              src={userImage}
-              alt="User Image"
-              width={40}
-              height={40}
-            />
-          )) : (<SignInButton />)}
+            <SignInButton />
+          )}
         </label>
         <ul
           tabIndex={0}
