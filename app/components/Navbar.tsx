@@ -1,17 +1,19 @@
 "use client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import ChatHistoryDrawer from "./Drawer";
 
 const NavBar: React.FC = ({}) => {
   const { data } = useSession();
   const userImage = data?.user?.image;
   return (
-    <div className="navbar bg-base-100 sticky top-0 z-50">
+    <div className="navbar bg-base-100 sticky flex gap-4 top-0 z-50">
       <div className="flex-1">
         <a href="/chat" className="btn btn-ghost normal-case text-xl">
           AI ChatBot{" "}
         </a>
       </div>
+      <ChatHistoryDrawer />
       <div className="flex-none">
         <button className="btn btn-square btn-ghost rounded-full">
           {!userImage ? (

@@ -4,6 +4,7 @@ import Table, { Column } from "./../Table";
 import { ChatHistory, Message } from "@/types/models/shared";
 import { useRouter } from "next/navigation";
 import { useChatHistories, useDeleteChatHistory } from "@/app/hooks/useChatApi";
+import ChatPreview from "../ChatPreview";
 
 const ChatsTable: React.FC = () => {
   const { data: histories, isLoading } = useChatHistories();
@@ -20,9 +21,7 @@ const ChatsTable: React.FC = () => {
     {
       header: "Chat History",
       accessor: "chat_history",
-      render: (data) => (
-        <CustomChatHistoryComponent data={data as Message[][]} />
-      ),
+      render: (data) => <ChatPreview chat_history={data as Message[][]} />,
     },
     {
       header: "Delete",
