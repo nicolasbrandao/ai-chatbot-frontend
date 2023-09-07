@@ -1,5 +1,5 @@
 "use client";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { UserCircleIcon, SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import Drawer from "./Drawer";
@@ -36,8 +36,11 @@ const NavBar: React.FC = ({}) => {
         </label>
         <ul
           tabIndex={0}
-          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+          className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52"
         >
+          <li>
+            <button onClick={() => signOut()}>Sign Out</button>
+          </li>
           <li>
             <label className="swap swap-rotate">
               {/* this hidden checkbox controls the state */}
