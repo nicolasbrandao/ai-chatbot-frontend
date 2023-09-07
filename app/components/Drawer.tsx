@@ -6,7 +6,7 @@ import ChatPreview from "./ChatPreview";
 export default function Drawer() {
   const { data: histories, isLoading } = useChatHistories();
   const { push } = useRouter();
-  return !isLoading ? (
+  return (
     <div className="drawer">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
@@ -46,7 +46,5 @@ export default function Drawer() {
         </ul>
       </div>
     </div>
-  ) : (
-    <div className="loading loading-lg"></div>
-  );
+  )
 }
