@@ -41,7 +41,7 @@ const PreBlock = ({ children }: PreBlockProps) => {
               navigator.clipboard.writeText(children.props.children)
             }
           >
-            <ClipboardIcon className="h-4 w-4"/>
+            <ClipboardIcon className="h-4 w-4" />
             Copy code
           </div>
         </div>
