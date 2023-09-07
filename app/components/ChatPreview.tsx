@@ -8,11 +8,11 @@ interface SimpleChatProps {
 
 const ChatPreview: React.FC<SimpleChatProps> = ({ chat_history }) => {
   const flatChatHistory = chat_history.flat();
-  const lastThreeMessages = flatChatHistory.slice(-3);
+  const lastMessage = flatChatHistory.slice(-1);
 
   return (
     <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
-      {lastThreeMessages.map((message, index) => (
+      {lastMessage.map((message, index) => (
         <ChatBubble message={message} key={index} />
       ))}
     </div>
