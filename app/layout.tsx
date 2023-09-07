@@ -17,12 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" data-theme="forest">
+      <body className={`${inter.className} min-h-screen`}>
         <Providers>
-          <div className="flex justify-center items-center h-full flex-col">
+          <div className="flex justify-center items-center min-h-full flex-col">
             <NavBar />
-            <div className="p-4">{children}</div>
+            <main className="p-4 min-h-full">{children}</main>
           </div>
         </Providers>
       </body>

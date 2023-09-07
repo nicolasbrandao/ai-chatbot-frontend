@@ -2,8 +2,7 @@
 
 import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { ChatHistory, Message } from "@/types/models/shared";
+import { Message } from "@/types/models/shared";
 import {
   useChatHistory,
   useCreateChatHistory,
@@ -11,6 +10,7 @@ import {
 } from "@/app/hooks/useChatApi";
 import ChatBubble from "../ChatBubble";
 import { useRouter } from "next/navigation";
+import { PaperAirplaneIcon, BookmarkIcon } from "@heroicons/react/24/outline";
 
 export default function Chat({ id }: { id?: string | number }) {
   const { data: fetchedChatHistory, isLoading: isChatHistoryLoading } =
@@ -127,17 +127,19 @@ export default function Chat({ id }: { id?: string | number }) {
   return (
     <section className="flex flex-col w-full h-full">
       <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
-        {chat
-          .filter((message) => message.type !== "SYSTEM")
-          .map((message, index) => {
-            return <ChatBubble message={message} key={`${index}`} />;
-          })}
-        {isNewMessageLoading && (
-          <ChatBubble
-            message={{ type: "AI", message: answer, createdAt: Date.now() }}
-          />
-        )}
-        <div className="flex flex-col gap-4 sticky bottom-0 z-50">
+        <div className="min-h-full">
+          {chat
+            .filter((message) => message.type !== "SYSTEM")
+            .map((message, index) => {
+              return <ChatBubble message={message} key={`${index}`} />;
+            })}
+          {isNewMessageLoading && (
+            <ChatBubble
+              message={{ type: "AI", message: answer, createdAt: Date.now() }}
+            />
+          )}
+        </div>
+        <div className="flex flex-col gap-4 sticky bottom-4">
           <form className="flex gap-4" onSubmit={handleSubmit}>
             <textarea
               className="textarea textarea-bordered w-full resize-none"
@@ -149,6 +151,13 @@ export default function Chat({ id }: { id?: string | number }) {
               placeholder="Write your message here..."
             />
             <button
+              onClick={handleSave}
+              disabled={isNewMessageLoading}
+              className="btn h-[100px]"
+            >
+              <BookmarkIcon className="h-6 w-6" />
+            </button>
+            <button
               disabled={isNewMessageLoading}
               className="btn h-[100px]"
               type="submit"
@@ -157,17 +166,9 @@ export default function Chat({ id }: { id?: string | number }) {
               {isNewMessageLoading && (
                 <span className="loading loading-spinner"></span>
               )}
-              Send
+              <PaperAirplaneIcon className="h-6 w-6 " />
             </button>
           </form>
-
-          <button
-            onClick={handleSave}
-            disabled={isNewMessageLoading}
-            className="btn"
-          >
-            Save Chat
-          </button>
         </div>
       </div>
     </section>

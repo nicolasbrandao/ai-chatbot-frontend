@@ -2,12 +2,12 @@ export const dateFormatter = (dateTimeString: string) => {
   const date = new Date(dateTimeString);
 
   // Determine user's locale for formatting
-  const userLocale = navigator.language || 'en-US';
+  const userLocale = navigator.language || "en-US";
 
   // Options for formatting time
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true, // Use 12-hour format with AM/PM
   };
 
@@ -18,4 +18,4 @@ export const dateFormatter = (dateTimeString: string) => {
   const formattedTime = dateTimeFormatter.format(date);
 
   return formattedTime;
-}
+};
