@@ -21,7 +21,7 @@ export default function Drawer() {
             <div className="mx-auto p-0">
               <button
                 className="btn btn-primary btn-wide"
-                onClick={() => push("/chat/new")}
+                onClick={() => push("/chat")}
               >
                 <PlusIcon className="h-6 w-6" />
                 New Chat

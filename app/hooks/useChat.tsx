@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import {
   useChatHistory,
   useCreateChatHistory,
-  usePostChatMessage,
   useSubmitChatMessage,
   useUpdateChatHistory,
 } from "@/app/hooks/useChatApi";

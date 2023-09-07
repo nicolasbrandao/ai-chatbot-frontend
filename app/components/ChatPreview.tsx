@@ -7,7 +7,7 @@ interface SimpleChatProps {
 }
 
 const ChatPreview: React.FC<SimpleChatProps> = ({ chat_history }) => {
-  const flatChatHistory = chat_history.flat();
+  const flatChatHistory = chat_history ? chat_history.flat() : [];
   const lastMessage = flatChatHistory.slice(-1);
 
   return (
@@ -23,12 +23,11 @@ export default ChatPreview;
 
 type PreviewCardProps = {
   message: string;
-  key?: number | string;
 };
 
-const PreviewCard = ({ message, key }: PreviewCardProps) => {
+const PreviewCard = ({ message }: PreviewCardProps) => {
   return (
-    <div className="flex gap-2 items-center justify-between w-full" key={key}>
+    <div className="flex gap-2 items-center justify-between w-full">
       <ChatBubbleLeftIcon className="h-5 w-5" />
       {/* TODO: Use a message title instead of spliting the message */}
       <p className="rounded">{message}</p>

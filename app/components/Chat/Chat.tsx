@@ -64,10 +64,11 @@ const Chat: React.FC<ChatPropos> = ({
               type="submit"
               name="message"
             >
-              {isNewMessageLoading && (
+              {isNewMessageLoading ? (
                 <span className="loading loading-spinner"></span>
+              ) : (
+                <PaperAirplaneIcon className="h-6 w-6 " />
               )}
-              <PaperAirplaneIcon className="h-6 w-6 " />
             </button>
           </form>
         </div>
