@@ -1,6 +1,6 @@
 import React from "react";
 import { Message } from "@/types/models/shared";
-import ChatBubble from "./ChatBuble";
+import ChatBubble from "./ChatBubble";
 
 interface SimpleChatProps {
   chat_history: Message[][];
