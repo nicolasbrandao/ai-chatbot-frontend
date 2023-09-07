@@ -1,20 +1,27 @@
 "use client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { UserCircleIcon, SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import Drawer from "./Drawer";
+import { useEffect } from "react";
+import { themeChange } from "theme-change";
 
 const NavBar: React.FC = ({}) => {
   const { data } = useSession();
   const userImage = data?.user?.image;
+
+  useEffect(() => {
+    themeChange(false);
+  }, []);
+
   return (
     <div className="navbar bg-base-100 justify-between sticky flex gap-4 top-0 z-50 border-b">
       <div className="flex-none">
         <Drawer />
       </div>
 
-      <div className="flex-none">
-        <button className="btn btn-square btn-ghost rounded-full">
+      <div className="dropdown dropdown-end">
+        <label tabIndex={0} className="rounded-full">
           {!userImage ? (
             <UserCircleIcon className="h-[40px] w-[40px]" />
           ) : (
@@ -26,7 +33,25 @@ const NavBar: React.FC = ({}) => {
               height={40}
             />
           )}
-        </button>
+        </label>
+        <ul
+          tabIndex={0}
+          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+        >
+          <li>
+            <label className="swap swap-rotate">
+              {/* this hidden checkbox controls the state */}
+              <input
+                data-toggle-theme="forest,light"
+                data-act-class="ACTIVECLASS"
+                type="checkbox"
+                onChange={() => themeChange()}
+              />
+              <SunIcon className="swap-on fill-current w-5 h-5" />
+              <MoonIcon className="swap-off fill-current w-5 h-5" />
+            </label>
+          </li>
+        </ul>
       </div>
     </div>
   );
