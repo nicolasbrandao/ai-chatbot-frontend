@@ -31,15 +31,18 @@ export default function Drawer() {
           {isLoading ? (
             <span className="loading loading-spinner loading-lg mx-auto"></span>
           ) : (
-            histories!.map((h, i) => (
+            histories!.map((history, i) => (
               <li
                 onClick={() => {
-                  push(`/chat/${h.id}`);
+                  push(`/chat/${history.id}`);
                 }}
                 className="hover"
                 key={i}
               >
-                <ChatPreview chat_history={h.chat_history} id={h.id} />
+                <ChatPreview
+                  chat_history={history.chat_history}
+                  id={history.id}
+                />
               </li>
             ))
           )}

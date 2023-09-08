@@ -13,7 +13,7 @@ export interface Message {
 }
 
 export interface ChatHistory {
-  id: string;
+  id: number;
   title?: string;
   chat_history: Message[][];
   user_email: string;

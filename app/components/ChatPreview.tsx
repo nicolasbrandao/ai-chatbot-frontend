@@ -5,7 +5,7 @@ import { useDeleteChatHistory } from "../hooks/useChatLocalApi";
 
 interface SimpleChatProps {
   chat_history: Message[][];
-  id: number | string;
+  id: number;
 }
 
 const ChatPreview: React.FC<SimpleChatProps> = ({
@@ -31,7 +31,7 @@ export default ChatPreview;
 
 type PreviewCardProps = {
   message: string;
-  id: number | string;
+  id: number;
 };
 
 const PreviewCard = ({ message, id }: PreviewCardProps) => {

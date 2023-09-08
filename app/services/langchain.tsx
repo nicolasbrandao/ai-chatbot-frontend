@@ -55,7 +55,7 @@ export const submitChatMessage = async ({
           },
         },
       ],
-    }
+    },
   );
   return response;
 };
