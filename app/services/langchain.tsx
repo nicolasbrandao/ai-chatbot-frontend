@@ -23,15 +23,16 @@ export function buildMessages(history?: Message[][]) {
 }
 
 export const submitChatMessage = async ({
+  openAIApiKey,
   message,
   history,
   setState,
 }: {
+  openAIApiKey: string;
   message: string;
   history?: Message[][];
   setState: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const openAIApiKey = "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";
   const model = new ChatOpenAI({
     openAIApiKey,
     modelName: "gpt-4",
@@ -54,7 +55,7 @@ export const submitChatMessage = async ({
           },
         },
       ],
-    },
+    }
   );
   return response;
 };

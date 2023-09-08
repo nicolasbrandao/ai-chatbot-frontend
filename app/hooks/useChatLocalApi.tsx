@@ -16,7 +16,7 @@ export const useListChatHistories = () => {
 
 export const useGetChatHistory = (id?: number) => {
   return useQuery(["chatHistoryDexie", id], () =>
-    id ? getChatHistory(id) : undefined,
+    id ? getChatHistory(id) : undefined
   );
 };
 
@@ -49,7 +49,7 @@ export const useUpdateChatHistory = () => {
       onSuccess: () => {
         queryClient.invalidateQueries("chatHistoriesDexie");
       },
-    },
+    }
   );
 };
 

@@ -10,6 +10,7 @@ import {
 } from "@/app/hooks/useChatLocalApi";
 import { useRouter } from "next/navigation";
 import { ChatHistory, Message } from "@/types/models/shared";
+import useApiKey from "./useApiKey";
 
 type ChatState = {
   message: string;
@@ -55,6 +56,7 @@ const reducer = (state: typeof initialState, action: ChatAction) => {
 
 export const useChat = (id?: number) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { apiKey } = useApiKey();
   const { data: fetchedChatHistory, isLoading: isChatHistoryLoading } =
     useGetChatHistory(id ?? undefined);
   const updateChatHistory = useUpdateChatHistory();
@@ -97,7 +99,12 @@ export const useChat = (id?: number) => {
     dispatch({ type: "SET_LOADING", payload: true });
     e?.preventDefault();
     const { mutateAsync: submitMessage } = submitChatMessage;
+    if (!apiKey) {
+      alert("Please enter an API key");
+      return;
+    }
     const aiResponse = await submitMessage({
+      openAIApiKey: apiKey,
       message: state.message,
       history: state.chatHistory?.chat_history,
       setState: (newAiResponse) => {
