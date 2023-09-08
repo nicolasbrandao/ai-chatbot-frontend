@@ -52,7 +52,11 @@ const Chat: React.FC<ChatPropos> = ({
               placeholder="Write your message here..."
             />
             <button
-              onClick={handleSave}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSave();
+              }}
               disabled={isNewMessageLoading}
               className="btn h-[100px]"
             >

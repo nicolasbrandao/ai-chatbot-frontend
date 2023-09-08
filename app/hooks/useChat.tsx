@@ -3,11 +3,11 @@
 import { useEffect, useReducer, ChangeEvent, FormEvent } from "react";
 import { useSession } from "next-auth/react";
 import {
-  useChatHistory,
+  useGetChatHistory,
   useCreateChatHistory,
   useSubmitChatMessage,
   useUpdateChatHistory,
-} from "@/app/hooks/useChatApi";
+} from "@/app/hooks/useChatLocalApi";
 import { useRouter } from "next/navigation";
 import { ChatHistory, Message } from "@/types/models/shared";
 
@@ -53,17 +53,17 @@ const reducer = (state: typeof initialState, action: ChatAction) => {
   }
 };
 
-export const useChat = (id?: string | number) => {
+export const useChat = (id?: number) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { data: fetchedChatHistory, isLoading: isChatHistoryLoading } =
-    useChatHistory(id?.toString() ?? " ");
+    useGetChatHistory(id ?? undefined);
   const updateChatHistory = useUpdateChatHistory();
   const { push } = useRouter();
   const createChatHistory = useCreateChatHistory();
   const submitChatMessage = useSubmitChatMessage();
 
   const { data: session } = useSession();
-  const user_email = session?.user?.email!;
+  const user_email = session?.user?.email ?? "lgpelin92@gmail.com";
 
   useEffect(() => {
     if (fetchedChatHistory) {
@@ -101,11 +101,13 @@ export const useChat = (id?: string | number) => {
       message: state.message,
       history: state.chatHistory?.chat_history,
       setState: (newAiResponse) => {
+        console.log({ newAiResponse });
         dispatch({ type: "SET_ANSWER", payload: newAiResponse as string });
       },
     });
 
     dispatch({ type: "SET_LOADING", payload: false });
+    console.log({ aiResponse });
 
     const newMessages: Message[] = [
       {
@@ -133,18 +135,18 @@ export const useChat = (id?: string | number) => {
   const createNewChat = async () =>
     createChatHistory.mutateAsync({
       user_email,
-      chat_history: state.chatHistory?.chat_history,
+      chat_history: state.chatHistory?.chat_history ?? [],
     });
 
   const updateChat = async () =>
     updateChatHistory.mutateAsync({
-      user_email,
-      chat_history: state.chatHistory?.chat_history ?? [],
-      id: id?.toString()!,
+      updates: state.chatHistory!,
+      id: id!,
     });
 
   const handleSave = async () => {
-    const { id: savedId } = !id ? await createNewChat() : await updateChat();
+    const savedChat = !id ? await createNewChat() : await updateChat();
+    const { id: savedId } = savedChat!;
     push(`/chat/${id ?? savedId}`);
     console.log({ savedId });
   };

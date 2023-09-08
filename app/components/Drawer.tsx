@@ -1,10 +1,10 @@
 import { Bars3Icon, PlusIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { useChatHistories } from "../hooks/useChatApi";
+import { useListChatHistories } from "../hooks/useChatLocalApi";
 import ChatPreview from "./ChatPreview";
 
 export default function Drawer() {
-  const { data: histories, isLoading } = useChatHistories();
+  const { data: histories, isLoading } = useListChatHistories();
   const { push } = useRouter();
   return (
     <div className="drawer">

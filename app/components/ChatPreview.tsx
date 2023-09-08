@@ -57,7 +57,7 @@ const DeleteChatButton = ({ id }: { id: number | string }) => {
       console.log({ e });
     }
   };
-  
+
   return (
     <button className="btn">
       <TrashIcon
