@@ -1,8 +1,25 @@
 import { Message } from "@/types/models/shared";
 import { AIMessage, HumanMessage, SystemMessage } from "langchain/schema";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
-import { ConversationChain } from "langchain/chains";
+import { ConversationChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
+import { OpenAI } from "langchain/llms/openai";
+import { PromptTemplate } from "langchain/prompts";
+import DexieVectorStore from "./DexieVectorStore";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+
+import { CheerioWebBaseLoader } from "langchain/document_loaders/web/cheerio";
+
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import Dexie from "dexie";
+import { createConversationalRetrievalAgent } from "langchain/agents/toolkits";
+import { createRetrieverTool } from "langchain/agents/toolkits";
+
+const db = new Dexie("embeddings");
+
+db.version(1).stores({
+  embeddings: "++id, created_at",
+});
 
 export function buildMessage(message: Message) {
   switch (message.type) {
@@ -55,7 +72,85 @@ export const submitChatMessage = async ({
           },
         },
       ],
-    },
+    }
   );
   return response;
+};
+
+export const buildTitleFromHistory = async ({
+  history,
+  openAIApiKey,
+}: {
+  history: Message[][];
+  openAIApiKey: string;
+}) => {
+  // We can construct an LLMChain from a PromptTemplate and an LLM.
+  const getFirstMessage = (history: Message[][]): string => {
+    const [firstMessages] = history;
+    const [firstMessage] = firstMessages;
+    if (!firstMessage) return "";
+    return firstMessage.message;
+  };
+
+  const model = new OpenAI({ openAIApiKey, temperature: 0 });
+  const prompt = PromptTemplate.fromTemplate(
+    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}"
+  );
+  const chainA = new LLMChain({ llm: model, prompt });
+  const response = await chainA.call({ message: getFirstMessage(history) });
+  return response?.text;
+};
+
+export const getEmbeddingsRetriever = async (apiKey: string) => {
+  const loader = new CheerioWebBaseLoader("state_of_the_union.txt");
+  const docs = await loader.load();
+  console.log({ docs });
+
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 0,
+  });
+  const texts = await splitter.splitDocuments(docs);
+
+  console.log({ texts });
+
+  console.log({ db });
+
+  console.log({ embeddingsDB: db.table("embeddings") });
+
+  const vectorStore = await DexieVectorStore.fromDocuments(
+    texts,
+    new OpenAIEmbeddings({ openAIApiKey: apiKey }),
+    {
+      client: db.table("embeddings"),
+    }
+  );
+  console.log({ vectorStore });
+
+  const retriever = vectorStore.asRetriever();
+  console.log({ retriever });
+
+  return retriever;
+};
+
+export const getConversationalQa = async (apiKey: string) => {
+  const retriever = await getEmbeddingsRetriever(apiKey);
+  const tool = createRetrieverTool(retriever, {
+    name: "lg_knows",
+    description:
+      "Searches and returns documents regarding the lg tastes and preferences.",
+  });
+
+  console.log({ tool });
+
+  const model = new ChatOpenAI({
+    temperature: 0,
+    openAIApiKey: apiKey,
+  });
+  const executor = await createConversationalRetrievalAgent(model, [tool], {
+    verbose: true,
+  });
+  console.log({ executor });
+
+  return executor;
 };
