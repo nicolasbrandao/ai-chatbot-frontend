@@ -6,6 +6,7 @@ import Drawer from "./Drawer";
 import { useEffect } from "react";
 import { themeChange } from "theme-change";
 import SignInButton from "./SignInButton";
+import ApiKeyComponent from "./ApiKey";
 
 const NavBar: React.FC = ({}) => {
   const session = useSession();
@@ -42,14 +43,11 @@ const NavBar: React.FC = ({}) => {
         </label>
         <ul
           tabIndex={0}
-          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+          className="dropdown-content z-[1] menu-lg p-2 shadow bg-base-100 rounded-box w-120"
         >
           <li>
-            <button onClick={() => signOut()}>Sign Out</button>
-          </li>
-          <li>
-            <label className="swap swap-rotate">
-              {/* this hidden checkbox controls the state */}
+            <label className="swap swap-rotate flex gap-4">
+              Toggle Theme
               <input
                 data-toggle-theme="forest,light"
                 data-act-class="ACTIVECLASS"
@@ -59,6 +57,13 @@ const NavBar: React.FC = ({}) => {
               <SunIcon className="swap-on fill-current w-5 h-5" />
               <MoonIcon className="swap-off fill-current w-5 h-5" />
             </label>
+          </li>
+
+          <li>
+            <ApiKeyComponent />
+          </li>
+          <li>
+            <button onClick={() => signOut()}>Sign Out</button>
           </li>
         </ul>
       </div>

@@ -1,11 +1,11 @@
 import React from "react";
 import { Message } from "@/types/models/shared";
 import { ChatBubbleLeftIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { useDeleteChatHistory } from "../hooks/useChatApi";
+import { useDeleteChatHistory } from "../hooks/useChatLocalApi";
 
 interface SimpleChatProps {
   chat_history: Message[][];
-  id: number | string;
+  id: number;
 }
 
 const ChatPreview: React.FC<SimpleChatProps> = ({
@@ -31,7 +31,7 @@ export default ChatPreview;
 
 type PreviewCardProps = {
   message: string;
-  id: number | string;
+  id: number;
 };
 
 const PreviewCard = ({ message, id }: PreviewCardProps) => {
@@ -45,19 +45,19 @@ const PreviewCard = ({ message, id }: PreviewCardProps) => {
   );
 };
 
-const DeleteChatButton = ({ id }: { id: number | string }) => {
+const DeleteChatButton = ({ id }: { id: number }) => {
   const deleteChatHistory = useDeleteChatHistory();
 
   const handleDelete = async () => {
     try {
-      await deleteChatHistory.mutateAsync(`${id}`);
+      await deleteChatHistory.mutateAsync(id);
       alert("Deleted Successfully");
     } catch (e) {
       alert("Something went wrong");
       console.log({ e });
     }
   };
-  
+
   return (
     <button className="btn">
       <TrashIcon

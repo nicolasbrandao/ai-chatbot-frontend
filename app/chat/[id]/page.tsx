@@ -5,11 +5,15 @@ import { useChat } from "@/app/hooks/useChat";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const chat = useChat(id);
+  const chat = useChat(parseInt(id));
   const { chatHistory, isChatHistoryLoading } = chat;
   console.log({ chatHistory });
 
-  const title = chatHistory?.title ?? "Untitled";
+  const title =
+    chatHistory?.title == undefined || chatHistory?.title === ""
+      ? "Untitled"
+      : chatHistory?.title;
+
   return !isChatHistoryLoading ? (
     <>
       <ChatHeader title={title} />
