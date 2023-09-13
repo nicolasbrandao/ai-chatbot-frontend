@@ -1,9 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
+import { url } from "./settings";
 
 export default function App() {
-  const url = "https://bible.com";
   return (
     <View style={styles.container}>
       <Text>Welcome to the Baible</Text>
