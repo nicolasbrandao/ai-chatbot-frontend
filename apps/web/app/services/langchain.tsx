@@ -6,14 +6,16 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import DexieVectorStore from "./DexieVectorStore";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-
-import { CheerioWebBaseLoader } from "langchain/document_loaders/web/cheerio";
+import "@tensorflow/tfjs-backend-cpu";
+import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
 
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import Dexie from "dexie";
-import { createConversationalRetrievalAgent } from "langchain/agents/toolkits";
-import { createRetrieverTool } from "langchain/agents/toolkits";
+import {
+  createConversationalRetrievalAgent,
+  createRetrieverTool,
+} from "langchain/agents/toolkits";
+import { Document } from "langchain/document";
 
 const db = new Dexie("embeddings");
 
@@ -101,26 +103,24 @@ export const buildTitleFromHistory = async ({
   return response?.text;
 };
 
-export const getEmbeddingsRetriever = async (apiKey: string) => {
-  const loader = new CheerioWebBaseLoader("state_of_the_union.txt");
-  const docs = await loader.load();
+export const getEmbeddingsRetriever = async () => {
+  const response = await fetch("/bible.txt");
+  const fetchedTxt = await response.text();
+
+  // Store it in docs
+  const docs = [new Document({ pageContent: fetchedTxt })];
   console.log({ docs });
 
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
+    chunkSize: 512,
     chunkOverlap: 0,
   });
   const texts = await splitter.splitDocuments(docs);
-
   console.log({ texts });
-
-  console.log({ db });
-
-  console.log({ embeddingsDB: db.table("embeddings") });
 
   const vectorStore = await DexieVectorStore.fromDocuments(
     texts,
-    new OpenAIEmbeddings({ openAIApiKey: apiKey }),
+    new TensorFlowEmbeddings(),
     {
       client: db.table("embeddings"),
     }
@@ -134,11 +134,10 @@ export const getEmbeddingsRetriever = async (apiKey: string) => {
 };
 
 export const getConversationalQa = async (apiKey: string) => {
-  const retriever = await getEmbeddingsRetriever(apiKey);
+  const retriever = await getEmbeddingsRetriever();
   const tool = createRetrieverTool(retriever, {
-    name: "lg_knows",
-    description:
-      "Searches and returns documents regarding the lg tastes and preferences.",
+    name: "bible",
+    description: "Searches and returns documents regarding the holy bible.",
   });
 
   console.log({ tool });
