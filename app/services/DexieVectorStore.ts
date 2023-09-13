@@ -20,15 +20,18 @@ export interface DexieBaseLibArgs {
   upsertBatchSize?: number;
 }
 
-interface Row {
-  id: number;
+interface NewRow {
   embedding: number[];
   content: string;
   metadata: Record<string, any>;
 }
 
+interface Row extends NewRow {
+  id: number;
+}
+
 class DexieVectorStore extends VectorStore {
-  private client: Dexie.Table<Row, number>;
+  private client: Dexie.Table<NewRow, number>;
 
   FilterType = {};
   lc_namespace = ["embedding"];
@@ -45,23 +48,51 @@ class DexieVectorStore extends VectorStore {
   async addDocuments(
     documents: Document[],
     options?: Record<string, any>
-  ): Promise<string[] | void> {
-    const documentsTextContent = documents.map(
-      ({ pageContent }) => pageContent
+  ): Promise<string[]> {
+    console.log("Starting the addDocuments process...");
+
+    const chunkSize = 50;
+    const totalDocuments = documents.length;
+
+    const chunks = Array.from(
+      { length: Math.ceil(totalDocuments / chunkSize) },
+      (_, i) => documents.slice(i * chunkSize, (i + 1) * chunkSize)
     );
 
-    const documentsTextContentArray =
-      await embeddings.embedDocuments(documentsTextContent);
+    const resultIds = await chunks.reduce(
+      async (accPromise, chunk, index) => {
+        const acc = await accPromise;
 
-    const documentsMetadata: Row[] = documents.map((doc, i) => ({
-      id: i,
-      metadata: doc.metadata,
-      content: doc.pageContent,
-      embedding: documentsTextContentArray[i],
-    }));
+        const documentsTextContent = chunk.map(
+          ({ pageContent }) => pageContent
+        );
+        console.log("Mapped document text content for chunk.");
+        const documentsTextContentArray =
+          await embeddings.embedDocuments(documentsTextContent);
+        console.log("Embedded documents completed for chunk.");
 
-    const result = await this.client.bulkAdd(documentsMetadata);
-    return result.toString().split(","); // Converting the number to a string array
+        const documentsMetadata: NewRow[] = chunk.map((doc, i) => ({
+          metadata: doc.metadata,
+          content: doc.pageContent,
+          embedding: documentsTextContentArray[i],
+        }));
+        console.log("Mapped document metadata for chunk.");
+
+        const result = await this.client.bulkAdd(documentsMetadata);
+        console.log(`Bulk add to client completed for chunk ${index + 1}.`);
+        console.log(
+          `Stored Percentage: ${(
+            (((index + 1) * chunk.length) / totalDocuments) *
+            100
+          ).toFixed(2)}%`
+        );
+
+        return acc.concat(result.toString().split(","));
+      },
+      Promise.resolve([] as string[])
+    );
+
+    return resultIds;
   }
 
   async addVectors(
@@ -182,6 +213,7 @@ class DexieVectorStore extends VectorStore {
     embeddings: Embeddings,
     dbConfig: DexieBaseLibArgs
   ): Promise<DexieVectorStore> {
+    console.log("Starting the fromDocuments process...");
     const store = new this(embeddings, dbConfig);
     await store.addDocuments(docs);
     return store;

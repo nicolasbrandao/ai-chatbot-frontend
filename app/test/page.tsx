@@ -10,7 +10,7 @@ export default function Page() {
     const agent = await getConversationalQa(apiKey!);
 
     const result = await agent.call({
-      input: "How lg believe the world was created ?  ",
+      input: "How god create the earth on the bible ?  ",
     });
     console.log({ result });
 
