@@ -7,6 +7,8 @@
     "build": "next build && tsc",
     "start": "concurrently \"next start\" \"node ./dist/api/server.js\"",
     "lint": "prettier --write . && next lint --fix",
+    "encrypt": "gpg -c .env.local",
+    "decrypt": "gpg --output .env.local -d .env.local.gpg",
     "gen-schema": "supabase login && supabase gen types typescript --project-id lhwkrtotfvbsthuhioiq > types/database/supabase-generated.types.ts"
   },
   "dependencies": {
