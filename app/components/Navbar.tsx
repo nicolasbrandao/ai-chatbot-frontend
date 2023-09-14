@@ -43,11 +43,11 @@ const NavBar: React.FC = ({}) => {
         </label>
         <ul
           tabIndex={0}
-          className="dropdown-content z-[1] menu-lg p-2 shadow bg-base-100 rounded-box w-120"
+          className="dropdown-content z-1 menu-lg p-2 shadow bg-base-300 rounded-box"
         >
-          <li>
-            <label className="swap swap-rotate flex gap-4">
-              Toggle Theme
+          <li className="flex gap-4 items-center justify-center">
+            <p className="w-[150px] p-0">Toggle Theme</p>
+            <label className="swap swap-rotate">
               <input
                 data-toggle-theme="forest,light"
                 data-act-class="ACTIVECLASS"
@@ -58,7 +58,6 @@ const NavBar: React.FC = ({}) => {
               <MoonIcon className="swap-off fill-current w-5 h-5" />
             </label>
           </li>
-
           <li>
             <ApiKeyComponent />
           </li>
