@@ -74,7 +74,7 @@ export const submitChatMessage = async ({
           },
         },
       ],
-    }
+    },
   );
   return response;
 };
@@ -96,7 +96,7 @@ export const buildTitleFromHistory = async ({
 
   const model = new OpenAI({ openAIApiKey, temperature: 0 });
   const prompt = PromptTemplate.fromTemplate(
-    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}"
+    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}",
   );
   const chainA = new LLMChain({ llm: model, prompt });
   const response = await chainA.call({ message: getFirstMessage(history) });
@@ -123,7 +123,7 @@ export const getEmbeddingsRetriever = async () => {
     new TensorFlowEmbeddings(),
     {
       client: db.table("embeddings"),
-    }
+    },
   );
   console.log({ vectorStore });
 
