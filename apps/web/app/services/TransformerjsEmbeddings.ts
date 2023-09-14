@@ -24,7 +24,7 @@ export class TransformerjsEmbeddings extends Embeddings {
   async embedQuery(document: string): Promise<number[]> {
     const extractor = await pipeline(
       "feature-extraction",
-      "Supabase/gte-small"
+      "Supabase/bge-small-en"
     );
 
     const output: Tensor = await extractor(document, {
