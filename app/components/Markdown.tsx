@@ -10,7 +10,7 @@ export type MarkdownProps = { markdown?: string };
 const CodeBlock = ({ children }: { children: string }) => (
   <code
     onClick={() => navigator.clipboard.writeText(children)}
-    className="border"
+    className="bg-neutral text-info p-1 rounded"
   >
     {children}
   </code>
