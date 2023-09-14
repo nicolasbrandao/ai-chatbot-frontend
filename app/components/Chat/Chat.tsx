@@ -25,7 +25,6 @@ const Chat: React.FC<ChatProps> = ({
   message,
   answer,
 }) => {
-
   return (
     <section className="flex flex-col w-full h-full md:min-w-[600px]">
       <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
