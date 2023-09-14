@@ -1,12 +1,12 @@
 "use client";
 
 import { Message } from "@/types/models/shared";
-
 import ChatBubble from "../ChatBubble";
 import { PaperAirplaneIcon, BookmarkIcon } from "@heroicons/react/24/outline";
 import { ChangeEvent, FormEvent } from "react";
+import TextareaAutosize from "react-textarea-autosize";
 
-interface ChatPropos {
+interface ChatProps {
   chat: Message[];
   handleChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   handleSave: () => Promise<void>;
@@ -16,7 +16,7 @@ interface ChatPropos {
   answer: string;
 }
 
-const Chat: React.FC<ChatPropos> = ({
+const Chat: React.FC<ChatProps> = ({
   chat,
   handleChange,
   handleSave,
@@ -25,8 +25,9 @@ const Chat: React.FC<ChatPropos> = ({
   message,
   answer,
 }) => {
+
   return (
-    <section className="flex flex-col w-full h-full">
+    <section className="flex flex-col w-full h-full md:min-w-[600px]">
       <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
         <div className="min-h-full">
           {chat
@@ -41,39 +42,46 @@ const Chat: React.FC<ChatPropos> = ({
           )}
         </div>
         <div className="flex flex-col gap-4 sticky bottom-4">
-          <form className="flex gap-4" onSubmit={handleSubmit}>
-            <textarea
-              className="textarea textarea-bordered w-full resize-none"
+          <form
+            className="flex flex-start bg-base-300 gap-4 p-1 rounded-xl"
+            onSubmit={handleSubmit}
+          >
+            <TextareaAutosize
+              className="textarea w-full resize-none"
               value={message}
               onChange={(e) => handleChange(e)}
               onKeyUp={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) handleSubmit();
               }}
               placeholder="Write your message here..."
+              minRows={3}
+              maxRows={8}
             />
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleSave();
-              }}
-              disabled={isNewMessageLoading}
-              className="btn h-[100px]"
-            >
-              <BookmarkIcon className="h-6 w-6" />
-            </button>
-            <button
-              disabled={isNewMessageLoading}
-              className="btn h-[100px]"
-              type="submit"
-              name="message"
-            >
-              {isNewMessageLoading ? (
-                <span className="loading loading-spinner"></span>
-              ) : (
-                <PaperAirplaneIcon className="h-6 w-6 " />
-              )}
-            </button>
+            <div className="flex flex-col gap-1 h-fit mt-auto">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSave();
+                }}
+                disabled={isNewMessageLoading}
+                className="btn"
+              >
+                <BookmarkIcon className="h-6 w-6" />
+              </button>
+              <button
+                disabled={isNewMessageLoading}
+                className="btn"
+                type="submit"
+                name="message"
+              >
+                {isNewMessageLoading ? (
+                  <span className="loading loading-spinner"></span>
+                ) : (
+                  <PaperAirplaneIcon className="h-6 w-6 " />
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>
