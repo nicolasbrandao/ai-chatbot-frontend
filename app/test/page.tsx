@@ -2,15 +2,16 @@
 import { useState } from "react";
 import { getConversationalQa } from "../services/langchain";
 import useApiKey from "../hooks/useApiKey";
+import { RetrievalQAChain } from "langchain/chains";
 
 export default function Page() {
   const [answer, setAnswer] = useState("");
   const { apiKey } = useApiKey();
   const makeSillyQuestion = async () => {
-    const agent = await getConversationalQa(apiKey!);
+    const agent: RetrievalQAChain = await getConversationalQa(apiKey!);
 
     const result = await agent.call({
-      input: "How god create the earth on the bible ?  ",
+      question: "How god create the earth?",
     });
     console.log({ result });
 

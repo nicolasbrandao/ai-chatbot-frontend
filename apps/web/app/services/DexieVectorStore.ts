@@ -2,9 +2,15 @@ import Dexie from "dexie";
 import { VectorStore } from "langchain/vectorstores/base";
 import { Embeddings } from "langchain/embeddings/base";
 import { Document } from "langchain/document";
+<<<<<<< HEAD:apps/web/app/services/DexieVectorStore.ts
 import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
+=======
+import * as tf from "@tensorflow/tfjs";
+import "@tensorflow/tfjs-backend-cpu";
+import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
+>>>>>>> f8f02e2 (FEA : Implement TransformerJS embeddings and update question answering pipeline):app/services/DexieVectorStore.ts
 
-const embeddings = new TensorFlowEmbeddings();
+const embeddings = new TransformerjsEmbeddings({});
 const db = new Dexie("chatHistoryDB");
 db.version(1).stores({
   chat_history: "++id, created_at",
@@ -49,7 +55,7 @@ class DexieVectorStore extends VectorStore {
   ): Promise<string[]> {
     console.log("Starting the addDocuments process...");
 
-    const chunkSize = 50;
+    const chunkSize = 1;
     const totalDocuments = documents.length;
 
     const chunks = Array.from(
@@ -64,15 +70,13 @@ class DexieVectorStore extends VectorStore {
         const documentsTextContent = chunk.map(
           ({ pageContent }) => pageContent
         );
-        console.log("Mapped document text content for chunk.");
-        const documentsTextContentArray =
-          await embeddings.embedDocuments(documentsTextContent);
-        console.log("Embedded documents completed for chunk.");
 
+        const documentsTextEmbedding =
+          await embeddings.embedDocuments(documentsTextContent);
         const documentsMetadata: NewRow[] = chunk.map((doc, i) => ({
           metadata: doc.metadata,
           content: doc.pageContent,
-          embedding: documentsTextContentArray[i],
+          embedding: documentsTextEmbedding[i],
         }));
         console.log("Mapped document metadata for chunk.");
 

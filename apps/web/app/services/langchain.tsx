@@ -7,7 +7,7 @@ import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import DexieVectorStore from "./DexieVectorStore";
 import "@tensorflow/tfjs-backend-cpu";
-import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
+import { RetrievalQAChain, loadQAStuffChain } from "langchain/chains";
 
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import Dexie from "dexie";
@@ -16,6 +16,7 @@ import {
   createRetrieverTool,
 } from "langchain/agents/toolkits";
 import { Document } from "langchain/document";
+import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
 
 const db = new Dexie("embeddings");
 
@@ -112,7 +113,7 @@ export const getEmbeddingsRetriever = async () => {
   console.log({ docs });
 
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 512,
+    chunkSize: 1000,
     chunkOverlap: 0,
   });
   const texts = await splitter.splitDocuments(docs);
@@ -120,7 +121,7 @@ export const getEmbeddingsRetriever = async () => {
 
   const vectorStore = await DexieVectorStore.fromDocuments(
     texts,
-    new TensorFlowEmbeddings(),
+    new TransformerjsEmbeddings({}),
     {
       client: db.table("embeddings"),
     }
@@ -135,21 +136,32 @@ export const getEmbeddingsRetriever = async () => {
 
 export const getConversationalQa = async (apiKey: string) => {
   const retriever = await getEmbeddingsRetriever();
-  const tool = createRetrieverTool(retriever, {
-    name: "bible",
-    description: "Searches and returns documents regarding the holy bible.",
-  });
 
-  console.log({ tool });
+  const template = `Use the following pieces of context to answer the question at the end.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+Use three sentences maximum and keep the answer as concise as possible.
+Always say "thanks for asking!" at the end of the answer.
+{context}
+Question: {question}
+Helpful Answer:`;
+
+  const QA_CHAIN_PROMPT = new PromptTemplate({
+    inputVariables: ["context", "question"],
+    template,
+  });
 
   const model = new ChatOpenAI({
     temperature: 0,
     openAIApiKey: apiKey,
   });
-  const executor = await createConversationalRetrievalAgent(model, [tool], {
-    verbose: true,
-  });
-  console.log({ executor });
 
-  return executor;
+  const chain = new RetrievalQAChain({
+    combineDocumentsChain: loadQAStuffChain(model, { prompt: QA_CHAIN_PROMPT }),
+    retriever,
+    verbose: true,
+    returnSourceDocuments: true,
+    inputKey: "question",
+  });
+
+  return chain;
 };
