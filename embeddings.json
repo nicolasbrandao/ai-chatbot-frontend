@@ -1,0 +1,4 @@
+yarn run v1.22.19
+$ tsx ./scripts/embedding.ts ./documents
+Embeddings saved to documents/embeddings/embeddings.json
+Done in 198.58s.
