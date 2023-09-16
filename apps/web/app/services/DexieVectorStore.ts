@@ -3,15 +3,28 @@ import { VectorStore } from "langchain/vectorstores/base";
 import { Embeddings } from "langchain/embeddings/base";
 import { Document } from "langchain/document";
 <<<<<<< HEAD:apps/web/app/services/DexieVectorStore.ts
+<<<<<<< HEAD:apps/web/app/services/DexieVectorStore.ts
 import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
 =======
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-backend-cpu";
+=======
+>>>>>>> 98dafe1 (ENH: Improve embedding and similarity calculation efficiency):app/services/DexieVectorStore.ts
 import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
 >>>>>>> f8f02e2 (FEA : Implement TransformerJS embeddings and update question answering pipeline):app/services/DexieVectorStore.ts
 
+let similarityWorker: any;
+
+if (typeof window !== "undefined") {
+  similarityWorker = new Worker(
+    new URL("./../../workers/similarityWorker.ts", import.meta.url)
+  );
+}
+
 const embeddings = new TransformerjsEmbeddings({});
+
 const db = new Dexie("chatHistoryDB");
+
 db.version(1).stores({
   chat_history: "++id, created_at",
 });
@@ -55,7 +68,7 @@ class DexieVectorStore extends VectorStore {
   ): Promise<string[]> {
     console.log("Starting the addDocuments process...");
 
-    const chunkSize = 1;
+    const chunkSize = 50;
     const totalDocuments = documents.length;
 
     const chunks = Array.from(
@@ -115,21 +128,24 @@ class DexieVectorStore extends VectorStore {
 
   async similaritySearch(query: string, k?: number): Promise<Document[]> {
     const queryVector = await embeddings.embedQuery(query);
-
-    const queryTensor = tf.tensor(queryVector);
-
     const allVectors = await this.client.toArray();
 
-    const similarities = allVectors.map((doc) => {
-      const docTensor = tf.tensor(doc.embedding);
+    const similarities = await Promise.all(
+      allVectors.map(async (doc) => {
+        return new Promise<number>((resolve) => {
+          similarityWorker.onmessage = (event: { data: number }) => {
+            resolve(event.data);
+          };
+          similarityWorker.postMessage({
+            queryVector,
+            docVector: doc.embedding,
+          });
+        }).then((similarity) => {
+          return { similarity, pageContent: doc.content };
+        });
+      })
+    );
 
-      const similarity = tf.metrics
-        .cosineProximity(queryTensor, docTensor)
-        .arraySync() as number;
-      return { similarity, pageContent: doc.content };
-    });
-
-    // ZIP the similarities with the documents
     const sortedSimilarities = similarities.sort(
       (a, b) => b.similarity - a.similarity
     );
@@ -144,18 +160,24 @@ class DexieVectorStore extends VectorStore {
     k: number,
     filter?: this["FilterType"]
   ): Promise<[Document, number][]> {
-    const queryTensor = tf.tensor(query);
-
     const allVectors = await this.client.toArray();
-    const similarities = allVectors.map((doc) => {
-      const docTensor = tf.tensor(doc.embedding);
-      const similarity = tf.metrics
-        .cosineProximity(queryTensor, docTensor)
-        .arraySync() as number;
-      return { similarity, pageContent: doc.content };
-    });
 
-    // ZIP the similarities with the documents
+    const similarities = await Promise.all(
+      allVectors.map(async (doc) => {
+        return new Promise<number>((resolve) => {
+          similarityWorker.onmessage = (event: { data: number }) => {
+            resolve(event.data);
+          };
+          similarityWorker.postMessage({
+            queryVector: query,
+            docVector: doc.embedding,
+          });
+        }).then((similarity) => {
+          return { similarity, pageContent: doc.content };
+        });
+      })
+    );
+
     const sortedSimilarities = similarities.sort(
       (a, b) => b.similarity - a.similarity
     );
@@ -164,22 +186,30 @@ class DexieVectorStore extends VectorStore {
       .slice(0, k)
       .map((s) => [new Document({ pageContent: s.pageContent }), s.similarity]);
   }
+
   async similaritySearchWithScore(
     query: string,
     k: number,
     filter?: this["FilterType"]
   ): Promise<[Document, number][]> {
     const queryVector = await embeddings.embedQuery(query);
-    const queryTensor = tf.tensor(queryVector);
     const allVectors = await this.client.toArray();
-    const similarities = allVectors.map((doc) => {
-      const docTensor = tf.tensor(doc.embedding);
 
-      const similarity = tf.metrics
-        .cosineProximity(queryTensor, docTensor)
-        .arraySync() as number;
-      return { similarity, pageContent: doc.content };
-    });
+    const similarities = await Promise.all(
+      allVectors.map(async (doc) => {
+        return new Promise<number>((resolve) => {
+          similarityWorker.onmessage = (event: { data: number }) => {
+            resolve(event.data);
+          };
+          similarityWorker.postMessage({
+            queryVector,
+            docVector: doc.embedding,
+          });
+        }).then((similarity) => {
+          return { similarity, pageContent: doc.content };
+        });
+      })
+    );
 
     const sortedSimilarities = similarities.sort(
       (a, b) => b.similarity - a.similarity

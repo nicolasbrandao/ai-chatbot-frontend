@@ -19,3 +19,11 @@ export interface ChatHistory {
   user_email: string;
   created_at: number;
 }
+
+export interface EmbeddingWorkerMessage {
+  data: {
+    status: "complete" | "error";
+    output?: number[];
+    message?: string | Error;
+  };
+}

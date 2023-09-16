@@ -6,15 +6,11 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import DexieVectorStore from "./DexieVectorStore";
-import "@tensorflow/tfjs-backend-cpu";
 import { RetrievalQAChain, loadQAStuffChain } from "langchain/chains";
 
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import Dexie from "dexie";
-import {
-  createConversationalRetrievalAgent,
-  createRetrieverTool,
-} from "langchain/agents/toolkits";
+
 import { Document } from "langchain/document";
 import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
 

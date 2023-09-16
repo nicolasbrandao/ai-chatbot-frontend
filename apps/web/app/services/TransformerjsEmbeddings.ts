@@ -1,5 +1,14 @@
-import { Tensor, pipeline } from "@xenova/transformers";
+"use client";
+import { EmbeddingWorkerMessage } from "@/types/models/shared";
 import { Embeddings, EmbeddingsParams } from "langchain/embeddings/base";
+
+let worker: any;
+
+if (typeof window !== "undefined") {
+  worker = new Worker(
+    new URL("./../../workers/embeddingWorker.ts", import.meta.url)
+  );
+}
 
 export class TransformerjsEmbeddings extends Embeddings {
   constructor(params: EmbeddingsParams) {
@@ -7,7 +16,7 @@ export class TransformerjsEmbeddings extends Embeddings {
   }
 
   async embedDocuments(documents: string[]): Promise<number[][]> {
-    const chunkSize = 2;
+    const chunkSize = 50;
     const results: number[][] = [];
 
     for (let i = 0; i < documents.length; i += chunkSize) {
@@ -22,16 +31,16 @@ export class TransformerjsEmbeddings extends Embeddings {
   }
 
   async embedQuery(document: string): Promise<number[]> {
-    const extractor = await pipeline(
-      "feature-extraction",
-      "Supabase/bge-small-en"
-    );
-
-    const output: Tensor = await extractor(document, {
-      pooling: "mean",
-      normalize: true,
+    return new Promise<number[]>((resolve, reject) => {
+      worker.postMessage({ text: document });
+      worker.addEventListener("message", (event: EmbeddingWorkerMessage) => {
+        if (event.data.status === "complete") {
+          const output = event.data.output!;
+          resolve(output);
+        } else {
+          reject(new Error("Failed to process document"));
+        }
+      });
     });
-
-    return output.flatten().tolist();
   }
 }
