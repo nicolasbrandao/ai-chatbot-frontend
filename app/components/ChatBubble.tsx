@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Markdown from "./Markdown";
 import { dateFormatter } from "@/shared/utils";
+import { ClipboardIcon } from "@heroicons/react/24/outline";
 
 export default function ChatBubble({ message }: { message: Message }) {
   const session = useSession();
@@ -33,7 +34,14 @@ export default function ChatBubble({ message }: { message: Message }) {
         <div className="chat-bubble bg-base-200 text-base-content">
           <Markdown markdown={message.message} />
         </div>
-        <div className="chat-footer opacity-50">Message Status</div>
+        <div className="chat-footer opacity-50">
+          <div
+            className="flex gap-1 cursor-pointer"
+            onClick={() => navigator.clipboard.writeText(message.message)}
+          >
+            <ClipboardIcon className="h-4 w-4 mt-1" />
+          </div>
+        </div>
       </div>
     </>
   );
