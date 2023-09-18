@@ -11,17 +11,13 @@ import { Tensor, pipeline } from "@xenova/transformers";
 import process from "process";
 import path from "path";
 import fs from "fs";
+import ProgressBar from "progress";
+import { Embedding } from "@/types/shared";
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 512,
   chunkOverlap: 0,
 });
-
-interface Embedding {
-  content: string;
-  embedding: number[];
-  metadata?: Record<string, any>;
-}
 
 const loadFiles = async (path: string): Promise<Embedding[]> => {
   const loader = new DirectoryLoader(path, {
@@ -33,10 +29,13 @@ const loadFiles = async (path: string): Promise<Embedding[]> => {
   });
   const extractor = await pipeline(
     "feature-extraction",
-    "Supabase/bge-small-en"
+    "Supabase/bge-small-en",
   );
   const docs = await loader.load();
   const splittedDocs = await splitter.splitDocuments(docs);
+
+  const bar = new ProgressBar(":bar :percent", { total: splittedDocs.length });
+
   let embeddings: Embedding[] = [];
   for (const splittedDocument of splittedDocs) {
     const content = splittedDocument.pageContent;
@@ -52,6 +51,8 @@ const loadFiles = async (path: string): Promise<Embedding[]> => {
       embedding,
       metadata: splittedDocument.metadata,
     });
+
+    bar.tick();
   }
 
   return embeddings;
@@ -75,7 +76,10 @@ const main = async () => {
   const embeddings = await loadFiles(folderPath);
 
   const jsonFilePath = path.join(savePath, "embeddings.json");
-  fs.writeFileSync(jsonFilePath, JSON.stringify(embeddings, null, 2));
+  fs.writeFileSync(
+    jsonFilePath,
+    JSON.stringify({ embeddings, createAt: Date.now() }, null, 2),
+  );
 
   console.log(`Embeddings saved to ${jsonFilePath}`);
 };

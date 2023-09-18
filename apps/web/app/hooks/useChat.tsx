@@ -9,7 +9,7 @@ import {
   useUpdateChatHistory,
 } from "@/app/hooks/useChatLocalApi";
 import { useRouter } from "next/navigation";
-import { ChatHistory, Message } from "@/types/models/shared";
+import { ChatHistory, Message } from "@/types/shared";
 import useApiKey from "./useApiKey";
 
 type ChatState = {
@@ -108,13 +108,11 @@ export const useChat = (id?: number) => {
       message: state.message,
       history: state.chatHistory?.chat_history,
       setState: (newAiResponse) => {
-        console.log({ newAiResponse });
         dispatch({ type: "SET_ANSWER", payload: newAiResponse as string });
       },
     });
 
     dispatch({ type: "SET_LOADING", payload: false });
-    console.log({ aiResponse });
 
     const newMessages: Message[] = [
       {
@@ -155,7 +153,6 @@ export const useChat = (id?: number) => {
     const savedChat = !id ? await createNewChat() : await updateChat();
     const { id: savedId } = savedChat!;
     push(`/chat/${id ?? savedId}`);
-    console.log({ savedId });
   };
 
   return {

@@ -22,27 +22,12 @@ const authConfig: AuthOptions = {
   providers: [googleConfig],
   callbacks: {
     async jwt({ token, account, profile, user, session }) {
-      console.log(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ");
-      console.log({ token });
-      console.log({ account });
-      console.log({ profile });
-      session.accessToken = token?.id_token;
-      console.log(" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-
-      // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
         token.accessToken = account.access_token;
       }
       return { ...token, ...user };
     },
     async session({ session, token, user }) {
-      // Send properties to the client, like an access_token and user id from a provider.
-      console.log(" ################################");
-      console.log({ session });
-      console.log({ token });
-      console.log({ user });
-      console.log(" ################################");
-
       session.accessToken = token?.id_token;
 
       return {

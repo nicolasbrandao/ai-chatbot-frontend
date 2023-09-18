@@ -41,6 +41,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.expo/
-node_modules
-mobile/
+# Mobile
+.expo

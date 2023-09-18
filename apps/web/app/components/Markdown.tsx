@@ -29,8 +29,6 @@ const PreBlock = ({ children }: PreBlockProps) => {
     const classNameWithoutCode = classname?.replace("code", "").trim();
     const language = classNameWithoutCode?.replace("lang-", "");
 
-    console.log({ language });
-
     return (
       <div className="bg-base-300 rounded my-4">
         <div className="flex justify-between px-2 pt-2 text-xs">
@@ -74,8 +72,6 @@ const H3 = ({ children, ...props }: any) => (
 );
 
 const Markdown: React.FC<MarkdownProps> = ({ markdown = "" }) => {
-  console.log();
-
   return (
     <MarkdownTOJSX
       options={{

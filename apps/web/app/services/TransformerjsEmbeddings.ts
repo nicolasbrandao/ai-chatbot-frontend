@@ -1,12 +1,12 @@
 "use client";
-import { EmbeddingWorkerMessage } from "@/types/models/shared";
+import { EmbeddingWorkerMessage } from "@/types/shared";
 import { Embeddings, EmbeddingsParams } from "langchain/embeddings/base";
 
 let worker: any;
 
 if (typeof window !== "undefined") {
   worker = new Worker(
-    new URL("./../../workers/embeddingWorker.ts", import.meta.url)
+    new URL("./../../workers/embeddingWorker.ts", import.meta.url),
   );
 }
 
@@ -22,7 +22,7 @@ export class TransformerjsEmbeddings extends Embeddings {
     for (let i = 0; i < documents.length; i += chunkSize) {
       const chunk = documents.slice(i, i + chunkSize);
       const chunkResults = await Promise.all(
-        chunk.map((document) => this.embedQuery(document))
+        chunk.map((document) => this.embedQuery(document)),
       );
       results.push(...chunkResults);
     }

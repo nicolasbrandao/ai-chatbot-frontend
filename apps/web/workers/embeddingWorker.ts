@@ -6,7 +6,7 @@ self.addEventListener("message", async (event) => {
 
     const extractor = await pipeline(
       "feature-extraction",
-      "Supabase/bge-small-en"
+      "Supabase/bge-small-en",
     );
 
     const output: Tensor = await extractor(document, {

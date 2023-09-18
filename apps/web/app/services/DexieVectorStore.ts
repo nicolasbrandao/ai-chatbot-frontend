@@ -2,22 +2,14 @@ import Dexie from "dexie";
 import { VectorStore } from "langchain/vectorstores/base";
 import { Embeddings } from "langchain/embeddings/base";
 import { Document } from "langchain/document";
-<<<<<<< HEAD:apps/web/app/services/DexieVectorStore.ts
-<<<<<<< HEAD:apps/web/app/services/DexieVectorStore.ts
-import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
-=======
-import * as tf from "@tensorflow/tfjs";
-import "@tensorflow/tfjs-backend-cpu";
-=======
->>>>>>> 98dafe1 (ENH: Improve embedding and similarity calculation efficiency):app/services/DexieVectorStore.ts
+
 import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
->>>>>>> f8f02e2 (FEA : Implement TransformerJS embeddings and update question answering pipeline):app/services/DexieVectorStore.ts
 
 let similarityWorker: any;
 
 if (typeof window !== "undefined") {
   similarityWorker = new Worker(
-    new URL("./../../workers/similarityWorker.ts", import.meta.url)
+    new URL("./../../workers/similarityWorker.ts", import.meta.url),
   );
 }
 
@@ -64,16 +56,14 @@ class DexieVectorStore extends VectorStore {
 
   async addDocuments(
     documents: Document[],
-    options?: Record<string, any>
+    options?: Record<string, any>,
   ): Promise<string[]> {
-    console.log("Starting the addDocuments process...");
-
     const chunkSize = 50;
     const totalDocuments = documents.length;
 
     const chunks = Array.from(
       { length: Math.ceil(totalDocuments / chunkSize) },
-      (_, i) => documents.slice(i * chunkSize, (i + 1) * chunkSize)
+      (_, i) => documents.slice(i * chunkSize, (i + 1) * chunkSize),
     );
 
     const resultIds = await chunks.reduce(
@@ -81,7 +71,7 @@ class DexieVectorStore extends VectorStore {
         const acc = await accPromise;
 
         const documentsTextContent = chunk.map(
-          ({ pageContent }) => pageContent
+          ({ pageContent }) => pageContent,
         );
 
         const documentsTextEmbedding =
@@ -91,20 +81,11 @@ class DexieVectorStore extends VectorStore {
           content: doc.pageContent,
           embedding: documentsTextEmbedding[i],
         }));
-        console.log("Mapped document metadata for chunk.");
-
         const result = await this.client.bulkAdd(documentsMetadata);
-        console.log(`Bulk add to client completed for chunk ${index + 1}.`);
-        console.log(
-          `Stored Percentage: ${(
-            (((index + 1) * chunk.length) / totalDocuments) *
-            100
-          ).toFixed(2)}%`
-        );
 
         return acc.concat(result.toString().split(","));
       },
-      Promise.resolve([] as string[])
+      Promise.resolve([] as string[]),
     );
 
     return resultIds;
@@ -113,7 +94,7 @@ class DexieVectorStore extends VectorStore {
   async addVectors(
     vectors: number[][],
     documents: Document[],
-    options?: { ids?: string[] | number[] }
+    options?: { ids?: string[] | number[] },
   ) {
     const documentsMetadata: Row[] = documents.map((doc, i) => ({
       id: i,
@@ -130,8 +111,15 @@ class DexieVectorStore extends VectorStore {
     const queryVector = await embeddings.embedQuery(query);
     const allVectors = await this.client.toArray();
 
-    const similarities = await Promise.all(
-      allVectors.map(async (doc) => {
+    const chunkSize = 1; //Chunksize bigger that one cause race conditions and crashes
+    const totalVectors = allVectors.length;
+    const totalChunks = Math.ceil(totalVectors / chunkSize);
+    let processedChunks = 0;
+    let similarities: any[] = [];
+
+    for (let i = 0; i < totalVectors; i++) {
+      const chunk = allVectors.slice(i, i + chunkSize);
+      const chunkPromises = chunk.map(async (doc) => {
         return new Promise<number>((resolve) => {
           similarityWorker.onmessage = (event: { data: number }) => {
             resolve(event.data);
@@ -141,13 +129,20 @@ class DexieVectorStore extends VectorStore {
             docVector: doc.embedding,
           });
         }).then((similarity) => {
-          return { similarity, pageContent: doc.content };
+          const response = { similarity, pageContent: doc.content };
+          return response;
         });
-      })
-    );
+      });
+
+      const chunkResults = await Promise.all(chunkPromises);
+      similarities = similarities.concat(chunkResults);
+
+      processedChunks++;
+      const percentage = ((processedChunks / totalChunks) * 100).toFixed(2);
+    }
 
     const sortedSimilarities = similarities.sort(
-      (a, b) => b.similarity - a.similarity
+      (a, b) => b.similarity - a.similarity,
     );
 
     return sortedSimilarities
@@ -158,7 +153,7 @@ class DexieVectorStore extends VectorStore {
   async similaritySearchVectorWithScore(
     query: number[],
     k: number,
-    filter?: this["FilterType"]
+    filter?: this["FilterType"],
   ): Promise<[Document, number][]> {
     const allVectors = await this.client.toArray();
 
@@ -175,11 +170,11 @@ class DexieVectorStore extends VectorStore {
         }).then((similarity) => {
           return { similarity, pageContent: doc.content };
         });
-      })
+      }),
     );
 
     const sortedSimilarities = similarities.sort(
-      (a, b) => b.similarity - a.similarity
+      (a, b) => b.similarity - a.similarity,
     );
 
     return sortedSimilarities
@@ -190,7 +185,7 @@ class DexieVectorStore extends VectorStore {
   async similaritySearchWithScore(
     query: string,
     k: number,
-    filter?: this["FilterType"]
+    filter?: this["FilterType"],
   ): Promise<[Document, number][]> {
     const queryVector = await embeddings.embedQuery(query);
     const allVectors = await this.client.toArray();
@@ -208,11 +203,11 @@ class DexieVectorStore extends VectorStore {
         }).then((similarity) => {
           return { similarity, pageContent: doc.content };
         });
-      })
+      }),
     );
 
     const sortedSimilarities = similarities.sort(
-      (a, b) => b.similarity - a.similarity
+      (a, b) => b.similarity - a.similarity,
     );
 
     return sortedSimilarities
@@ -231,11 +226,11 @@ class DexieVectorStore extends VectorStore {
     texts: string[],
     metadatas: object[] | object,
     embeddings: Embeddings,
-    dbConfig: DexieBaseLibArgs
+    dbConfig: DexieBaseLibArgs,
   ): Promise<DexieVectorStore> {
     const store = new this(embeddings, dbConfig);
     store.addDocuments(
-      texts.map((text) => new Document({ pageContent: text }))
+      texts.map((text) => new Document({ pageContent: text })),
     );
     return store;
   }
@@ -243,9 +238,8 @@ class DexieVectorStore extends VectorStore {
   static async fromDocuments(
     docs: Document[],
     embeddings: Embeddings,
-    dbConfig: DexieBaseLibArgs
+    dbConfig: DexieBaseLibArgs,
   ): Promise<DexieVectorStore> {
-    console.log("Starting the fromDocuments process...");
     const store = new this(embeddings, dbConfig);
     await store.addDocuments(docs);
     return store;

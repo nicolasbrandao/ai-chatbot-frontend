@@ -1,21 +1,17 @@
-import { Message } from "@/types/models/shared";
+import { Embedding, Message } from "@/types/shared";
 import { AIMessage, HumanMessage, SystemMessage } from "langchain/schema";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
-import { ConversationChain, LLMChain } from "langchain/chains";
+import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
+
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import DexieVectorStore from "./DexieVectorStore";
-import { RetrievalQAChain, loadQAStuffChain } from "langchain/chains";
-
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import Dexie from "dexie";
 
-import { Document } from "langchain/document";
 import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
 
 const db = new Dexie("embeddings");
-
 db.version(1).stores({
   embeddings: "++id, created_at",
 });
@@ -49,31 +45,47 @@ export const submitChatMessage = async ({
   history?: Message[][];
   setState: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const model = new ChatOpenAI({
+  const retriever = await getEmbeddingsRetriever();
+
+  const streamingModel = new ChatOpenAI({
     openAIApiKey,
     modelName: "gpt-4",
     streaming: true,
+    callbacks: [
+      {
+        handleLLMNewToken(token) {
+          aiResponse += token;
+          setState(aiResponse);
+        },
+      },
+    ],
   });
+
   const historyMessages = buildMessages(history).flat();
   const memory = new BufferMemory({
+    memoryKey: "chat_history",
+    inputKey: "question",
+    outputKey: "text",
+    returnMessages: true,
     chatHistory: new ChatMessageHistory(historyMessages),
   });
-  const chain = new ConversationChain({ llm: model, memory: memory });
-  let aiResponse = "";
-  const { response } = await chain.call(
-    { input: message },
+  const chain = ConversationalRetrievalQAChain.fromLLM(
+    streamingModel,
+    retriever,
     {
-      callbacks: [
-        {
-          handleLLMNewToken(token) {
-            aiResponse += token;
-            setState(aiResponse);
-          },
-        },
-      ],
-    }
+      memory,
+      verbose: true,
+      returnSourceDocuments: true,
+    },
   );
-  return response;
+
+  let aiResponse = "";
+  const chainResponse = await chain.call({ question: message }, {});
+
+  const { text, sourceDocuments } = chainResponse;
+
+  console.log({ sourceDocuments });
+  return text;
 };
 
 export const buildTitleFromHistory = async ({
@@ -93,7 +105,7 @@ export const buildTitleFromHistory = async ({
 
   const model = new OpenAI({ openAIApiKey, temperature: 0 });
   const prompt = PromptTemplate.fromTemplate(
-    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}"
+    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}",
   );
   const chainA = new LLMChain({ llm: model, prompt });
   const response = await chainA.call({ message: getFirstMessage(history) });
@@ -101,63 +113,35 @@ export const buildTitleFromHistory = async ({
 };
 
 export const getEmbeddingsRetriever = async () => {
-  const response = await fetch("/bible.txt");
-  const fetchedTxt = await response.text();
-
-  // Store it in docs
-  const docs = [new Document({ pageContent: fetchedTxt })];
-  console.log({ docs });
-
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 0,
-  });
-  const texts = await splitter.splitDocuments(docs);
-  console.log({ texts });
-
-  const vectorStore = await DexieVectorStore.fromDocuments(
-    texts,
+  const vectorStore = await new DexieVectorStore(
     new TransformerjsEmbeddings({}),
     {
       client: db.table("embeddings"),
-    }
+    },
   );
-  console.log({ vectorStore });
 
-  const retriever = vectorStore.asRetriever();
-  console.log({ retriever });
+  const retriever = await vectorStore.asRetriever(10);
 
   return retriever;
 };
+export const loadProcessedEmbedding = async () => {
+  const response = await fetch("/embeddings.json");
+  const {
+    embeddings,
+    createAt,
+  }: { embeddings: Embedding[]; createAt: number } = await response.json();
 
-export const getConversationalQa = async (apiKey: string) => {
-  const retriever = await getEmbeddingsRetriever();
+  // Get the last_embeddings_date from local storage or some other store
+  const lastEmbeddingsDate = localStorage.getItem("last_embeddings_date");
 
-  const template = `Use the following pieces of context to answer the question at the end.
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-Use three sentences maximum and keep the answer as concise as possible.
-Always say "thanks for asking!" at the end of the answer.
-{context}
-Question: {question}
-Helpful Answer:`;
+  // If there's no previous timestamp or the new one is greater, update the cache
+  if (!lastEmbeddingsDate || Number(lastEmbeddingsDate) < createAt) {
+    // Clear the table and add new entries
 
-  const QA_CHAIN_PROMPT = new PromptTemplate({
-    inputVariables: ["context", "question"],
-    template,
-  });
+    await db.table("embeddings").clear();
+    await db.table("embeddings").bulkAdd(embeddings);
 
-  const model = new ChatOpenAI({
-    temperature: 0,
-    openAIApiKey: apiKey,
-  });
-
-  const chain = new RetrievalQAChain({
-    combineDocumentsChain: loadQAStuffChain(model, { prompt: QA_CHAIN_PROMPT }),
-    retriever,
-    verbose: true,
-    returnSourceDocuments: true,
-    inputKey: "question",
-  });
-
-  return chain;
+    // Update the last_embeddings_date in local storage
+    localStorage.setItem("last_embeddings_date", createAt.toString());
+  }
 };
