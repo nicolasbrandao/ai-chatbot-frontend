@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev\" \"ts-node --project tsconfig.server.json api/server.ts\"",
-    "build": "next build && tsc",
-    "start": "concurrently \"next start\" \"node ./dist/api/server.js\"",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "prettier --write . && next lint --fix",
     "encrypt": "gpg -c .env.local",
     "decrypt": "gpg --output .env.local -d .env.local.gpg",
