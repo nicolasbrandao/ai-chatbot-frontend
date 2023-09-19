@@ -76,7 +76,7 @@ export const submitChatMessage = async ({
       memory,
       verbose: true,
       returnSourceDocuments: true,
-    },
+    }
   );
 
   let aiResponse = "";
@@ -105,7 +105,7 @@ export const buildTitleFromHistory = async ({
 
   const model = new OpenAI({ openAIApiKey, temperature: 0 });
   const prompt = PromptTemplate.fromTemplate(
-    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}",
+    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}"
   );
   const chainA = new LLMChain({ llm: model, prompt });
   const response = await chainA.call({ message: getFirstMessage(history) });
@@ -117,15 +117,15 @@ export const getEmbeddingsRetriever = async () => {
     new TransformerjsEmbeddings({}),
     {
       client: db.table("embeddings"),
-    },
+    }
   );
 
-  const retriever = await vectorStore.asRetriever(10);
+  const retriever = await vectorStore.asRetriever(6);
 
   return retriever;
 };
 export const loadProcessedEmbedding = async () => {
-  const response = await fetch("/embeddings.json");
+  const response = await fetch("/bucket/embeddings.json");
   const {
     embeddings,
     createAt,

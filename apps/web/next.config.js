@@ -32,6 +32,10 @@ const nextConfig = {
         source: "/newscombinator/:path*",
         destination: "https://news.ycombinator.com/:path*",
       },
+      {
+        source: "/bucket/:path*",
+        destination: "https://storage.googleapis.com/ai-chat-embeddings/:path*",
+      },
     ];
   },
   images: {
@@ -54,6 +58,11 @@ const nextConfig = {
       sharp$: false,
       "onnxruntime-node$": false,
     };
+
+    config.module.rules.push({
+      test: /\.node/,
+      use: 'raw-loader',
+    });
     return config;
   },
 };

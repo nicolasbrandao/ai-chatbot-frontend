@@ -31,11 +31,13 @@
     "markdown-to-jsx": "^7.3.2",
     "next": "13.4.19",
     "next-auth": "^4.23.1",
+    "pdf-parse": "^1.1.1",
     "postcss": "8.4.29",
     "prettier": "3.0.3",
     "progress": "^2.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-pdf": "^7.3.3",
     "react-query": "^3.39.3",
     "react-syntax-highlighter": "^15.5.0",
     "react-textarea-autosize": "^8.5.3",
@@ -51,6 +53,7 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "@types/react-syntax-highlighter": "^15.5.7",
+    "raw-loader": "^4.0.2",
     "typescript": "^5.2.2"
   }
 }
