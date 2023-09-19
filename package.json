@@ -4,10 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "turbo dev",
+    "build": "turbo build --filter web",
     "cleanup": "rm -rf **/*/node_*"
   },
   "packageManager": "pnpm@8.7.5",
   "devDependencies": {
-    "turbo": "^1.10.13"
+    "@types/progress": "^2.0.5",
+    "turbo": "^1.10.13",
+    "web": "workspace:^"
+  },
+  "dependencies": {
+    "progress": "^2.0.3"
   }
 }

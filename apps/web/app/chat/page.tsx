@@ -3,7 +3,7 @@ import Chat from "@/app/components/Chat/Chat";
 import { useChat } from "@/app/hooks/useChat";
 import ChatHeader from "../components/Chat/ChatHeader";
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page() {
   const chat = useChat();
   const { chatHistory } = chat;
 
