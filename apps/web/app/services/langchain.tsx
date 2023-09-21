@@ -29,9 +29,9 @@ export function buildMessage(message: Message) {
   }
 }
 
-export function buildMessages(history?: Message[][]) {
+export function buildMessages(history?: Message[]) {
   if (!history) return [];
-  return history.map((messages) => messages.map(buildMessage));
+  return history.map(buildMessage);
 }
 
 export const submitChatMessage = async ({
@@ -42,7 +42,7 @@ export const submitChatMessage = async ({
 }: {
   openAIApiKey: string;
   message: string;
-  history?: Message[][];
+  history?: Message[];
   setState: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const retriever = await getEmbeddingsRetriever();
@@ -61,7 +61,7 @@ export const submitChatMessage = async ({
     ],
   });
 
-  const historyMessages = buildMessages(history).flat();
+  const historyMessages = buildMessages(history);
   const memory = new BufferMemory({
     memoryKey: "chat_history",
     inputKey: "question",

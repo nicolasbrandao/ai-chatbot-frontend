@@ -1,10 +1,10 @@
-import React from "react";
-import { useRouter } from "next/router";
+"use client";
+import { useSearchParams } from "next/navigation";
 import PDFViewer from "../components/PDFViewer";
 
 export default function Page() {
-  const router = useRouter();
-  const { page } = router.query;
+  const searchParams = useSearchParams();
+  const page = searchParams.get("page");
 
   return (
     <div>

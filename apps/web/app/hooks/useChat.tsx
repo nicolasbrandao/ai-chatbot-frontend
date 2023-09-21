@@ -6,7 +6,6 @@ import React, {
   useReducer,
   useEffect,
   ChangeEvent,
-  FormEvent,
   ReactNode,
 } from "react";
 import { useSession } from "next-auth/react";
@@ -16,77 +15,69 @@ import {
   useSubmitChatMessage,
   useUpdateChatHistory,
 } from "@/app/hooks/useChatLocalApi";
-import { ChatHistory, Message } from "@/types/shared";
+import { Chat, Message } from "@/types/shared";
 import useApiKey from "./useApiKey";
 import { useParams, useRouter } from "next/navigation";
 
-type ChatState = {
-  id: number | undefined;
+export type ChatState = {
   message: string;
   answer: string;
-  chat: Message[];
-  isNewMessageLoading: boolean;
-  isChatHistoryLoading: boolean;
-  chatHistory: ChatHistory | undefined;
+  isGenerating: boolean;
+  isLoading: boolean;
+  data: Chat | undefined;
 };
 
-type ChatContextType = {
-  state: ChatState;
-  chat: Message[];
-  chatHistory: ChatHistory | undefined;
-  dispatch: React.Dispatch<ChatAction>;
-  message: string;
-  answer: string;
-  isNewMessageLoading: boolean;
-  isChatHistoryLoading: boolean;
+export type ChatActions = {
   handleChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSave: (
-    rawId: string | undefined,
-    chatHistory: ChatHistory
-  ) => Promise<void>;
+  handleSave: (rawId: string | undefined, chatHistory: Chat) => Promise<void>;
   updateChat: (
     rawId: string | undefined,
-    chatHistory: ChatHistory
-  ) => Promise<ChatHistory | null>;
-  handleSubmit: (e?: FormEvent<HTMLFormElement>) => Promise<void>;
-  handleReSubmit: (index: number, newMessage: string) => Promise<void>;
+    chatHistory: Chat
+  ) => Promise<Chat | null>;
+  handleCompletion: ({
+    message,
+    history,
+  }: {
+    message: string;
+    history: Message[];
+  }) => Promise<void>;
 };
 
-type ChatAction =
-  | { type: "RESET" }
+type Reducers =
+  | { type: "SET_INITIAL" }
   | { type: "SET_MESSAGE"; payload: string }
   | { type: "SET_ANSWER"; payload: string }
   | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_CHAT_HISTORY"; payload: ChatHistory };
+  | { type: "SET_GENERATING"; payload: boolean }
+  | { type: "SET_CHAT"; payload: Chat };
 
-const ChatContext = createContext<ChatContextType | null>(null);
+const ChatStateContext = createContext<ChatState | null>(null);
+const ChatActionsContext = createContext<ChatActions | null>(null);
 
 const initialState: ChatState = {
-  id: undefined,
   message: "",
   answer: "",
-  chat: [],
-  isNewMessageLoading: false,
-  isChatHistoryLoading: true,
-  chatHistory: undefined,
+  isGenerating: false,
+  isLoading: true,
+  data: undefined,
 };
 
-const reducer = (state: typeof initialState, action: ChatAction) => {
-  switch (action.type) {
+const reducer = (state: typeof initialState, reducer: Reducers) => {
+  switch (reducer.type) {
     case "SET_MESSAGE":
-      return { ...state, message: action.payload };
+      return { ...state, message: reducer.payload };
     case "SET_ANSWER":
-      return { ...state, answer: action.payload };
-
+      return { ...state, answer: reducer.payload };
     case "SET_LOADING":
-      return { ...state, isNewMessageLoading: action.payload };
-    case "SET_CHAT_HISTORY":
+      return { ...state, isLoading: reducer.payload };
+    case "SET_GENERATING":
+      return { ...state, isGenerating: reducer.payload };
+    case "SET_CHAT":
       return {
         ...state,
-        chatHistory: { ...state.chatHistory, ...action.payload },
-        chat: action.payload.chat_history.flat(),
+        data: { ...state.data, ...reducer.payload },
       };
-    case "RESET":
+    case "SET_INITIAL":
       return initialState;
 
     default:
@@ -100,8 +91,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const { apiKey } = useApiKey();
-  const { data: fetchedChatHistory, isLoading: isChatHistoryLoading } =
-    useGetChatHistory(id);
+  const { data: fetchedChatHistory, isLoading } = useGetChatHistory(id);
 
   const updateChatHistory = useUpdateChatHistory();
   const { push } = useRouter();
@@ -112,44 +102,75 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const user_email = session?.user?.email!;
 
   useEffect(() => {
-    dispatch({ type: "RESET" });
+    dispatch({ type: "SET_INITIAL" });
     if (fetchedChatHistory) {
       dispatch({
-        type: "SET_CHAT_HISTORY",
+        type: "SET_CHAT",
         payload: fetchedChatHistory,
       });
     }
   }, [fetchedChatHistory]);
 
+  useEffect(
+    () =>
+      dispatch({
+        type: "SET_LOADING",
+        payload: isLoading,
+      }),
+
+    [isLoading]
+  );
+
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     dispatch({ type: "SET_MESSAGE", payload: e.target.value });
   };
 
-  const handleSubmit = async (e?: FormEvent<HTMLFormElement>) => {
-    dispatch({ type: "SET_LOADING", payload: true });
-    e?.preventDefault();
+  const handleCompletion = async ({
+    message,
+    history,
+  }: {
+    message: string;
+    history: Message[];
+  }) => {
+    const userMessage: Message = {
+      type: "USER",
+      message: message,
+      createdAt: Date.now(),
+    };
+    dispatch({ type: "SET_GENERATING", payload: true });
+    dispatch({ type: "SET_MESSAGE", payload: "" });
     const { mutateAsync: submitMessage } = submitChatMessage;
     if (!apiKey) {
       alert("Please enter an API key");
       return;
     }
+
+    const newChatHistory: Chat = {
+      ...state.data!,
+      created_at: state.data?.created_at ?? Date.now(),
+      user_email,
+      title: state.data?.title ?? "",
+      history: [...(history ?? []), userMessage],
+    };
+
+    dispatch({
+      type: "SET_CHAT",
+      payload: newChatHistory,
+    });
+
     const { text, sources } = await submitMessage({
       openAIApiKey: apiKey,
-      message: state.message,
-      history: state.chatHistory?.chat_history,
+      message: message,
+      history: history ?? [],
       setState: (newAiResponse) => {
         dispatch({ type: "SET_ANSWER", payload: newAiResponse as string });
       },
     });
 
-    dispatch({ type: "SET_LOADING", payload: false });
+    dispatch({ type: "SET_GENERATING", payload: false });
 
     const newMessages: Message[] = [
-      {
-        type: "USER",
-        message: state.message,
-        createdAt: Date.now(),
-      },
+      userMessage,
       {
         type: "AI",
         message: text,
@@ -158,94 +179,30 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       },
     ];
 
-    const newChatHistory: ChatHistory = {
-      ...state.chatHistory!,
-      created_at: state.chatHistory?.created_at ?? Date.now(),
+    const newChatHistoryWithGeneratedMessage: Chat = {
+      ...state.data!,
+      created_at: state.data?.created_at ?? Date.now(),
       user_email,
-      title: state.chatHistory?.title ?? "",
-      chat_history: [...(state.chatHistory?.chat_history ?? []), newMessages],
+      title: state.data?.title ?? "",
+      history: [...(history ?? []), ...newMessages],
     };
 
     dispatch({
-      type: "SET_CHAT_HISTORY",
-      payload: newChatHistory,
+      type: "SET_CHAT",
+      payload: newChatHistoryWithGeneratedMessage,
     });
 
     dispatch({ type: "SET_ANSWER", payload: "" });
 
-    await handleSave(rawId as string, newChatHistory);
+    await handleSave(rawId as string, newChatHistoryWithGeneratedMessage);
   };
 
-  const handleReSubmit = async (index: number, newMessage: string) => {
-    dispatch({ type: "SET_LOADING", payload: true });
-
-    const slicedChatHistory = state.chatHistory?.chat_history.slice(
-      0,
-      index / 2
-    );
-
-    dispatch({
-      type: "SET_CHAT_HISTORY",
-      payload: {
-        ...state.chatHistory!,
-        chat_history: [
-          ...(slicedChatHistory ?? []),
-          [{ type: "USER", message: newMessage, createdAt: Date.now() }],
-        ],
-      },
-    });
-
-    const { text, sources } = await submitChatMessage.mutateAsync({
-      openAIApiKey: apiKey!,
-      message: newMessage,
-      history: slicedChatHistory,
-      setState: (newAiResponse) => {
-        dispatch({ type: "SET_ANSWER", payload: newAiResponse as string });
-      },
-    });
-
-    // Create new messages array with the new user message and AI response
-    const newMessages: Message[] = [
-      {
-        type: "USER",
-        message: newMessage,
-        createdAt: Date.now(),
-      },
-      {
-        type: "AI",
-        message: text,
-        sources,
-        createdAt: Date.now(),
-      },
-    ];
-
-    console.log({ newMessages });
-
-    // Update the chat history
-    dispatch({
-      type: "SET_CHAT_HISTORY",
-      payload: {
-        ...state.chatHistory!,
-        chat_history: [...(slicedChatHistory ?? []), newMessages],
-      },
-    });
-
-    const newChatHistory: ChatHistory = {
-      ...state.chatHistory!,
-      chat_history: [...(slicedChatHistory ?? []), newMessages],
-    };
-
-    dispatch({ type: "SET_LOADING", payload: false });
-
-    await handleSave(rawId as string, newChatHistory);
-  };
-
-  const createNewChat = async (chatHistory: ChatHistory | undefined) => {
+  const createNewChat = async (chatHistory: Chat | undefined) => {
     console.log("create chat history");
     try {
       const response = await createChatHistory.mutateAsync({
         user_email,
-        chat_history: chatHistory?.chat_history ?? [],
+        history: chatHistory?.history ?? [],
       });
       console.log({ response });
 
@@ -255,10 +212,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateChat = async (
-    rawId: string | undefined,
-    chatHistory: ChatHistory
-  ) => {
+  const updateChat = async (rawId: string | undefined, chatHistory: Chat) => {
     console.log("update chat history");
 
     const response = await updateChatHistory.mutateAsync({
@@ -269,10 +223,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     return response;
   };
 
-  const handleSave = async (
-    rawId: string | undefined,
-    chatHistory: ChatHistory
-  ) => {
+  const handleSave = async (rawId: string | undefined, chatHistory: Chat) => {
     console.log("saving");
     console.log({ rawId, chatHistory });
 
@@ -288,33 +239,33 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <ChatContext.Provider
-      value={{
-        chat: state.chat,
-        chatHistory: state.chatHistory,
-        state,
-        dispatch,
-        handleChange,
-        handleSave,
-        updateChat,
-        handleSubmit,
-        handleReSubmit,
-        answer: state.answer,
-        isChatHistoryLoading,
-        isNewMessageLoading: state.isNewMessageLoading,
-        message: state.message,
-      }}
-    >
-      {children}
-    </ChatContext.Provider>
+    <ChatStateContext.Provider value={state}>
+      <ChatActionsContext.Provider
+        value={{
+          handleChange,
+          handleSave,
+          handleCompletion,
+          updateChat,
+        }}
+      >
+        {children}
+      </ChatActionsContext.Provider>
+    </ChatStateContext.Provider>
   );
 };
 
-export const useChat = () => {
-  const context = useContext(ChatContext);
-  1;
+export const useChatState = () => {
+  const context = useContext(ChatStateContext);
   if (!context) {
-    throw new Error("useChat must be used within a ChatProvider");
+    throw new Error("useChatState must be used within a ChatProvider");
+  }
+  return context;
+};
+
+export const useChatActions = () => {
+  const context = useContext(ChatActionsContext);
+  if (!context) {
+    throw new Error("useChatActions must be used within a ChatProvider");
   }
   return context;
 };

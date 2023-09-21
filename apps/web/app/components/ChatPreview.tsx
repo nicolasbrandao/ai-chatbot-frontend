@@ -4,7 +4,7 @@ import { ChatBubbleLeftIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useDeleteChatHistory } from "../hooks/useChatLocalApi";
 
 interface SimpleChatProps {
-  chat_history: Message[][];
+  chat_history: Message[];
   id: number;
 }
 
@@ -12,8 +12,7 @@ const ChatPreview: React.FC<SimpleChatProps> = ({
   chat_history,
   id,
 }: SimpleChatProps) => {
-  const flatChatHistory = chat_history ? chat_history.flat() : [];
-  const lastMessage = flatChatHistory.slice(-1);
+  const lastMessage = (chat_history ?? []).slice(-1);
   return (
     <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
       {lastMessage.map((message, index) => (

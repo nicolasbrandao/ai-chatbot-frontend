@@ -6,7 +6,7 @@ import { dateFormatter } from "@/shared/utils";
 import { ClipboardIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import Collapsible from "./Collapsble";
 import { useState } from "react";
-import { useChat } from "../hooks/useChat";
+import { useChatActions, useChatState } from "../hooks/useChat";
 
 export default function ChatBubble({ message }: { message: Message }) {
   const session = useSession();
@@ -17,10 +17,19 @@ export default function ChatBubble({ message }: { message: Message }) {
   const isAiMessage = message.type === "AI";
   const [isEditing, setIsEditing] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(message.message);
-  const { handleReSubmit, chat } = useChat();
-  const indexOfCurrentMessage = chat.findIndex(
-    (c) => c.message === message.message
-  );
+  const { handleCompletion } = useChatActions();
+  const { data: chat } = useChatState();
+  const history = chat?.history ?? [];
+
+  const getSlicedHistory = () => {
+    const messageEditedIndex = history.findIndex(
+      (h) => h.message === message.message
+    );
+    let slicedHistory: Message[] = history.slice(0, messageEditedIndex);
+    console.log({ slicedHistory });
+
+    return slicedHistory;
+  };
 
   const sourcesContent = message?.sources?.map((source, index) => {
     const sourceDescription = `${source.metadata?.source} page:${source.metadata?.loc?.pageNumber} from line ${source.metadata?.loc?.lines?.from} to ${source.metadata?.loc?.lines?.from}`;
@@ -74,7 +83,10 @@ export default function ChatBubble({ message }: { message: Message }) {
               <button
                 onClick={async () => {
                   setIsEditing(false);
-                  await handleReSubmit(indexOfCurrentMessage, currentMessage);
+                  await handleCompletion({
+                    message: currentMessage,
+                    history: getSlicedHistory(),
+                  });
                 }}
               >
                 Resubmit

@@ -7,14 +7,14 @@ import { useEffect } from "react";
 import { themeChange } from "theme-change";
 import SignInButton from "./SignInButton";
 import ApiKeyComponent from "./ApiKey";
-import { useChat } from "../hooks/useChat";
+import { useChatState } from "../hooks/useChat";
 
 const NavBar: React.FC = ({}) => {
   const session = useSession();
-  const { data } = session;
-  const userImage = data?.user?.image;
-  const { chatHistory } = useChat();
-  const title = chatHistory?.title ?? "Untitled";
+  const { data: sessionData } = session;
+  const userImage = sessionData?.user?.image;
+  const { data: chatData } = useChatState();
+  const title = chatData?.title ?? "Untitled";
   useEffect(() => {
     themeChange(false);
   }, []);

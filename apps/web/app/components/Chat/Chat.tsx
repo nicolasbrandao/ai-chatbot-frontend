@@ -1,42 +1,33 @@
 "use client";
 
-import { ChatHistory, Message } from "@/types/shared";
 import ChatBubble from "../ChatBubble";
-import { PaperAirplaneIcon, BookmarkIcon } from "@heroicons/react/24/outline";
-import { ChangeEvent, FormEvent } from "react";
+import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import TextareaAutosize from "react-textarea-autosize";
+import { ChatActions, ChatState } from "@/app/hooks/useChat";
 
 interface ChatProps {
-  chat: Message[];
-  handleChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSave: (
-    rawId: string | undefined,
-    chatHistory: ChatHistory
-  ) => Promise<void>;
-  handleSubmit: (e?: FormEvent<HTMLFormElement> | undefined) => Promise<void>;
-  isNewMessageLoading: boolean;
-  message: string;
-  answer: string;
+  state: ChatState;
+  actions: ChatActions;
 }
 
-const Chat: React.FC<ChatProps> = ({
-  chat,
-  handleChange,
-  handleSubmit,
-  isNewMessageLoading,
-  message,
-  answer,
-}) => {
+const Chat: React.FC<ChatProps> = ({ state, actions }) => {
+  const { data, isGenerating, answer, message } = state;
+  console.log({ data });
+  console.log({ state });
+
+  const history = data?.history ?? [];
+  const { handleChange, handleCompletion } = actions;
+
   return (
     <section className="flex flex-col w-full h-full md:min-w-[600px]">
       <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
         <div className="min-h-full">
-          {chat
+          {history
             .filter((message) => message.type !== "SYSTEM")
             .map((message, index) => {
               return <ChatBubble message={message} key={`${index}`} />;
             })}
-          {isNewMessageLoading && (
+          {isGenerating && (
             <ChatBubble
               message={{ type: "AI", message: answer, createdAt: Date.now() }}
             />
@@ -48,7 +39,7 @@ const Chat: React.FC<ChatProps> = ({
             onSubmit={async (e) => {
               e.preventDefault();
               console.log("submitting");
-              await handleSubmit();
+              await handleCompletion({ message, history });
             }}
           >
             <TextareaAutosize
@@ -57,7 +48,7 @@ const Chat: React.FC<ChatProps> = ({
               onChange={(e) => handleChange(e)}
               onKeyUp={async (e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
-                  await handleSubmit();
+                  await handleCompletion({ message, history });
                 }
               }}
               placeholder="Write your message here..."
@@ -66,12 +57,12 @@ const Chat: React.FC<ChatProps> = ({
             />
             <div className="flex flex-col gap-1 h-fit mt-auto">
               <button
-                disabled={isNewMessageLoading}
+                disabled={isGenerating}
                 className="btn"
                 type="submit"
                 name="message"
               >
-                {isNewMessageLoading ? (
+                {isGenerating ? (
                   <span className="loading loading-spinner"></span>
                 ) : (
                   <PaperAirplaneIcon className="h-6 w-6 " />

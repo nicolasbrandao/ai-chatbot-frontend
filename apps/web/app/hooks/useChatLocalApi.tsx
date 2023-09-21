@@ -7,7 +7,7 @@ import {
   updateChatHistory,
   deleteChatHistory,
 } from "@/app/services/dexie";
-import { ChatHistory } from "@/types/shared";
+import { Chat } from "@/types/shared";
 import { submitChatMessage } from "../services/langchain";
 
 export const useListChatHistories = () => {
@@ -32,10 +32,10 @@ export const useCreateChatHistory = () => {
 export const useUpdateChatHistory = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ id, updates }: { id: number; updates: Partial<ChatHistory> }) => {
+    ({ id, updates }: { id: number; updates: Partial<Chat> }) => {
       return updateChatHistory(id, {
         ...updates,
-        chat_history: [...(updates?.chat_history ?? [])],
+        history: [...(updates?.history ?? [])],
         user_email: updates.user_email ?? "lgpelin92@gmail.com",
       });
     },
