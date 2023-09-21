@@ -1,8 +1,10 @@
+import { Document } from "langchain/document";
+
 export interface Message {
   type: "AI" | "USER" | "SYSTEM";
   message: string;
   createdAt: number;
-  source?: string;
+  sources?: Document[];
 }
 
 export interface ChatHistory {

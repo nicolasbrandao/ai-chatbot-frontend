@@ -1,5 +1,5 @@
 import React from "react";
-import { Message } from "@/types/models/shared";
+import { Message } from "@/types/shared";
 import { ChatBubbleLeftIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useDeleteChatHistory } from "../hooks/useChatLocalApi";
 

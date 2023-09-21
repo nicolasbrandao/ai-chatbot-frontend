@@ -19,8 +19,8 @@ const splitter = new RecursiveCharacterTextSplitter({
   chunkOverlap: 0,
 });
 
-const loadFiles = async (path: string): Promise<Embedding[]> => {
-  const loader = new DirectoryLoader(path, {
+const loadFiles = async (dirPath: string): Promise<Embedding[]> => {
+  const loader = new DirectoryLoader(dirPath, {
     ".json": (path) => new JSONLoader(path, "/texts"),
     ".jsonl": (path) => new JSONLinesLoader(path, "/html"),
     ".txt": (path) => new TextLoader(path),
@@ -44,12 +44,19 @@ const loadFiles = async (path: string): Promise<Embedding[]> => {
       pooling: "mean",
       normalize: true,
     });
+    const relativeSourcePath = path.relative(
+      process.cwd(),
+      splittedDocument.metadata.source
+    );
 
     const embedding = output.flatten().tolist();
     embeddings.push({
       content,
       embedding,
-      metadata: splittedDocument.metadata,
+      metadata: {
+        ...splittedDocument.metadata,
+        source: relativeSourcePath,
+      },
     });
 
     bar.tick();
@@ -61,8 +68,8 @@ const loadFiles = async (path: string): Promise<Embedding[]> => {
 const main = async () => {
   const folderPath = process.argv[2];
   const savePath = process.argv[3]
-    ? path.join(folderPath, "embeddings", process.argv[3])
-    : path.join(folderPath, "embeddings");
+    ? path.join(folderPath, process.argv[3])
+    : path.join(folderPath);
 
   if (!folderPath) {
     console.error("Please provide a folder path.");

@@ -84,8 +84,7 @@ export const submitChatMessage = async ({
 
   const { text, sourceDocuments } = chainResponse;
 
-  console.log({ sourceDocuments });
-  return text;
+  return { text, sources: sourceDocuments };
 };
 
 export const buildTitleFromHistory = async ({
