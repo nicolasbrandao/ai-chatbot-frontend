@@ -7,12 +7,14 @@ import { useEffect } from "react";
 import { themeChange } from "theme-change";
 import SignInButton from "./SignInButton";
 import ApiKeyComponent from "./ApiKey";
+import { useChatState } from "../hooks/useChat";
 
 const NavBar: React.FC = ({}) => {
   const session = useSession();
-  const { data } = session;
-  const userImage = data?.user?.image;
-
+  const { data: sessionData } = session;
+  const userImage = sessionData?.user?.image;
+  const { data: chatData } = useChatState();
+  const title = chatData?.title ?? "Untitled";
   useEffect(() => {
     themeChange(false);
   }, []);
@@ -22,7 +24,7 @@ const NavBar: React.FC = ({}) => {
       <div className="flex-none">
         <Drawer />
       </div>
-
+      <h1 className="text-3xl">{title}</h1>
       <div className="dropdown dropdown-end">
         <label tabIndex={0} className="rounded-full">
           {session && session!.data?.user ? (

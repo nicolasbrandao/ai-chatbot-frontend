@@ -1,14 +1,17 @@
+import { Document } from "langchain/document";
+
 export interface Message {
+  id?: number; //Should be mandatory in the future
   type: "AI" | "USER" | "SYSTEM";
   message: string;
   createdAt: number;
-  source?: string;
+  sources?: Document[];
 }
 
-export interface ChatHistory {
+export interface Chat {
   id: number;
   title?: string;
-  chat_history: Message[][];
+  history: Message[];
   user_email: string;
   created_at: number;
 }

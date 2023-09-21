@@ -1,18 +1,13 @@
 "use client";
 import Chat from "@/app/components/Chat/Chat";
-import { useChat } from "@/app/hooks/useChat";
-import ChatHeader from "../components/Chat/ChatHeader";
+import { useChatState, useChatActions } from "@/app/hooks/useChat";
 
 export default function Page() {
-  const chat = useChat();
-  const { chatHistory } = chat;
-
-  const title = chatHistory?.title ?? "Untitled";
-
+  const chatState = useChatState();
+  const chatActions = useChatActions();
   return (
     <>
-      <ChatHeader title={title} />
-      <Chat {...chat} />
+      <Chat state={chatState} actions={chatActions} />
     </>
   );
 }

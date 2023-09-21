@@ -1,24 +1,13 @@
 "use client";
 import Chat from "@/app/components/Chat/Chat";
-import ChatHeader from "@/app/components/Chat/ChatHeader";
-import { useChat } from "@/app/hooks/useChat";
+import { useChatState, useChatActions } from "@/app/hooks/useChat";
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
-  const chat = useChat(parseInt(id));
-  const { chatHistory, isChatHistoryLoading } = chat;
-
-  const title =
-    chatHistory?.title == undefined || chatHistory?.title === ""
-      ? "Untitled"
-      : chatHistory?.title;
-
-  return !isChatHistoryLoading ? (
+export default function Page() {
+  const chatState = useChatState();
+  const chatActions = useChatActions();
+  return (
     <>
-      <ChatHeader title={title} />
-      <Chat {...chat} />
+      <Chat state={chatState} actions={chatActions} />
     </>
-  ) : (
-    <div className="loading loading-lg m-auto" />
   );
 }

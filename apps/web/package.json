@@ -9,7 +9,7 @@
     "lint": "prettier --write . && next lint --fix",
     "encrypt": "gpg -c .env.local",
     "decrypt": "gpg --output .env.local -d .env.local.gpg",
-    "embed": "tsx ./scripts/embedding.ts ./public"
+    "embed": "tsx ./scripts/embedding.ts"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^0.1.2",

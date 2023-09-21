@@ -18,11 +18,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="dark">
-      <body className={`${inter.className} min-h-screen`}>
+      <body className={`${inter.className} `}>
         <Providers>
-          <div className="flex justify-center items-center min-h-full flex-col">
+          <div className="flex justify-center items-center min-h-screen flex-col">
             <NavBar />
-            <main className="p-4 min-h-full">{children}</main>
+            <main className="flex flex-col flex-grow p-4 justify-space-between">
+              {children}
+            </main>
           </div>
         </Providers>
       </body>
