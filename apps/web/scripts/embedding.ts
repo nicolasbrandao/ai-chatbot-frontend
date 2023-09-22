@@ -29,7 +29,7 @@ const loadFiles = async (dirPath: string): Promise<Embedding[]> => {
   });
   const extractor = await pipeline(
     "feature-extraction",
-    "Supabase/bge-small-en"
+    "Supabase/bge-small-en",
   );
   const docs = await loader.load();
   const splittedDocs = await splitter.splitDocuments(docs);
@@ -46,7 +46,7 @@ const loadFiles = async (dirPath: string): Promise<Embedding[]> => {
     });
     const relativeSourcePath = path.relative(
       process.cwd(),
-      splittedDocument.metadata.source
+      splittedDocument.metadata.source,
     );
 
     const embedding = output.flatten().tolist();
@@ -85,7 +85,7 @@ const main = async () => {
   const jsonFilePath = path.join(savePath, "embeddings.json");
   fs.writeFileSync(
     jsonFilePath,
-    JSON.stringify({ embeddings, createAt: Date.now() }, null, 2)
+    JSON.stringify({ embeddings, createAt: Date.now() }, null, 2),
   );
 
   console.log(`Embeddings saved to ${jsonFilePath}`);
