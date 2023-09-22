@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "turbo dev",
+    "lint": "turbo lint",
     "build": "turbo build --filter web",
     "cleanup": "rm -rf **/*/node_*"
   },

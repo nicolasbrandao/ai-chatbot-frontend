@@ -3,10 +3,17 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Markdown from "./Markdown";
 import { dateFormatter } from "@/shared/utils";
-import { ClipboardIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon,
+  ClipboardIcon,
+  PencilSquareIcon,
+} from "@heroicons/react/24/outline";
 import Collapsible from "./Collapsble";
 import { useState } from "react";
 import { useChatActions, useChatState } from "../hooks/useChat";
+import Modal from "./Modal";
+import PDFViewer from "./PDFViewer";
+import { useDocument } from "../hooks/useDocument";
 
 export default function ChatBubble({ message }: { message: Message }) {
   const session = useSession();
@@ -23,24 +30,32 @@ export default function ChatBubble({ message }: { message: Message }) {
 
   const getSlicedHistory = () => {
     const messageEditedIndex = history.findIndex(
-      (h) => h.message === message.message
+      (h) => h.message === message.message,
     );
     let slicedHistory: Message[] = history.slice(0, messageEditedIndex);
     console.log({ slicedHistory });
 
     return slicedHistory;
   };
+  const { setOpen, setPage } = useDocument();
+
+  const handleOpenSource = (page: number) => {
+    setPage(page);
+    setOpen();
+  };
 
   const sourcesContent = message?.sources?.map((source, index) => {
-    const sourceDescription = `${source.metadata?.source} page:${source.metadata?.loc?.pageNumber} from line ${source.metadata?.loc?.lines?.from} to ${source.metadata?.loc?.lines?.from}`;
-
+    const sourceDescription = source.pageContent;
+    const pageNumber = source.metadata?.loc?.pageNumber;
     return (
       <div
         key={`${index}-${source}`}
         className="tooltip p-1"
         data-tip={sourceDescription}
       >
-        <button className="btn">{index}</button>
+        <button className="btn" onClick={() => handleOpenSource(pageNumber)}>
+          {index}
+        </button>
       </div>
     );
   });
@@ -80,33 +95,37 @@ export default function ChatBubble({ message }: { message: Message }) {
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
               ></textarea>
-              <button
-                onClick={async () => {
-                  setIsEditing(false);
-                  await handleCompletion({
-                    message: currentMessage,
-                    history: getSlicedHistory(),
-                  });
-                }}
-              >
-                Resubmit
-              </button>
+              {!isAiMessage && (
+                <button
+                  onClick={async () => {
+                    setIsEditing(false);
+                    await handleCompletion({
+                      message: currentMessage,
+                      history: getSlicedHistory(),
+                    });
+                  }}
+                >
+                  <ArrowPathIcon className="h-[15px] w-[15px]" />
+                </button>
+              )}
             </div>
           )}
         </div>
-        <div className="chat-footer opacity-50">
+        <div className="chat-footer opacity-50 flex">
           <div
             className="flex gap-1 cursor-pointer"
             onClick={() => navigator.clipboard.writeText(message.message)}
           >
             <ClipboardIcon className="h-4 w-4 mt-1" />
           </div>
-          <div
-            className="flex gap-1 cursor-pointer"
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            <DocumentTextIcon className="h-4 w-4 mt-1" />
-          </div>
+          {!isAiMessage && (
+            <div
+              className="flex gap-1 cursor-pointer"
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              <PencilSquareIcon className="h-4 w-4 mt-1" />
+            </div>
+          )}
         </div>
       </div>
     </>

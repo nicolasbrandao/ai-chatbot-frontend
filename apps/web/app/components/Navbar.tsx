@@ -20,7 +20,7 @@ const NavBar: React.FC = ({}) => {
   }, []);
 
   return (
-    <div className="navbar bg-base-100 justify-between sticky flex gap-4 top-0 z-50 border-b">
+    <div className="navbar bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-50 border-b border-base-200">
       <div className="flex-none">
         <Drawer />
       </div>
