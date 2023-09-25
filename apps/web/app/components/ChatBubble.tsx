@@ -11,8 +11,6 @@ import {
 import Collapsible from "./Collapsble";
 import { useState } from "react";
 import { useChatActions, useChatState } from "../hooks/useChat";
-import Modal from "./Modal";
-import PDFViewer from "./PDFViewer";
 import { useDocument } from "../hooks/useDocument";
 
 export default function ChatBubble({ message }: { message: Message }) {

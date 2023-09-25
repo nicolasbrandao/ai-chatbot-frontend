@@ -1,11 +1,11 @@
 "use client";
 
-import ChatBubble from "../ChatBubble";
+import ChatBubble from "./ChatBubble";
 import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import TextareaAutosize from "react-textarea-autosize";
 import { ChatActions, ChatState } from "@/app/hooks/useChat";
-import Modal from "../Modal";
-import PDFViewer from "../PDFViewer";
+import Modal from "./Modal";
+import PDFViewer from "./PDFViewer";
 import { useDocument } from "@/app/hooks/useDocument";
 
 interface ChatProps {
