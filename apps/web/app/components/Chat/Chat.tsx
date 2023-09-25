@@ -12,8 +12,6 @@ interface ChatProps {
 
 const Chat: React.FC<ChatProps> = ({ state, actions }) => {
   const { data, isGenerating, answer, message } = state;
-  console.log({ data });
-  console.log({ state });
 
   const history = data?.history ?? [];
   const { handleChange, handleCompletion } = actions;

@@ -6,7 +6,7 @@ let worker: any;
 
 if (typeof window !== "undefined") {
   worker = new Worker(
-    new URL("./../../workers/embeddingWorker.ts", import.meta.url),
+    new URL("./../../../workers/embeddingWorker.ts", import.meta.url),
   );
 }
 

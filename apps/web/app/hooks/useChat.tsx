@@ -14,6 +14,7 @@ import {
   useCreateChatHistory,
   useSubmitChatMessage,
   useUpdateChatHistory,
+  useBuildTitleFromHistory,
 } from "@/app/hooks/useChatLocalApi";
 import { Chat, Message } from "@/types/shared";
 import useApiKey from "./useApiKey";
@@ -79,7 +80,6 @@ const reducer = (state: typeof initialState, reducer: Reducers) => {
       };
     case "SET_INITIAL":
       return initialState;
-
     default:
       return state;
   }
@@ -97,7 +97,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const { push } = useRouter();
   const createChatHistory = useCreateChatHistory();
   const submitChatMessage = useSubmitChatMessage();
-
+  const buildTitleFromHistory = useBuildTitleFromHistory();
   const { data: session } = useSession();
   const user_email = session?.user?.email!;
 
@@ -223,13 +223,25 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     return response;
   };
 
-  const handleSave = async (rawId: string | undefined, chatHistory: Chat) => {
+  const handleSave = async (rawId: string | undefined, chatParams: Chat) => {
     console.log("saving");
-    console.log({ rawId, chatHistory });
+    console.log({ rawId, chatHistory: chatParams });
+    const hasTitle = chatParams?.title?.length && chatParams?.title?.length > 0;
+    const title = hasTitle
+      ? chatParams?.title
+      : await buildTitleFromHistory.mutateAsync({
+          history: chatParams.history,
+          openAIApiKey: apiKey!,
+        });
+
+    const chat = {
+      ...chatParams,
+      title,
+    };
 
     const savedChat = !rawId
-      ? await createNewChat(chatHistory)
-      : await updateChat(rawId, chatHistory!);
+      ? await createNewChat(chat)
+      : await updateChat(rawId, chat!);
     const { id: savedId } = savedChat ?? {};
 
     console.log({ savedChat });

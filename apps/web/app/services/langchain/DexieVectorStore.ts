@@ -9,7 +9,7 @@ let similarityWorker: any;
 
 if (typeof window !== "undefined") {
   similarityWorker = new Worker(
-    new URL("./../../workers/similarityWorker.ts", import.meta.url)
+    new URL("./../../../workers/similarityWorker.ts", import.meta.url)
   );
 }
 
