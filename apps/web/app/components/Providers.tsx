@@ -3,7 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { PropsWithChildren, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { loadProcessedEmbedding } from "../services/langchain";
+import { loadProcessedEmbedding } from "../services/langchain/embedding";
 import { ChatProvider } from "../hooks/useChat";
 import { DocumentProvider } from "../hooks/useDocument";
 

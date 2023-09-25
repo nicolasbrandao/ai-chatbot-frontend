@@ -1,4 +1,4 @@
-import { Embedding, Message } from "@/types/shared";
+import { Message } from "@/types/shared";
 import { AIMessage, HumanMessage, SystemMessage } from "langchain/schema";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
@@ -6,15 +6,7 @@ import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
-import DexieVectorStore from "./DexieVectorStore";
-import Dexie from "dexie";
-
-import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
-
-const db = new Dexie("embeddings");
-db.version(1).stores({
-  embeddings: "++id, created_at",
-});
+import { getEmbeddingsRetriever } from "./embedding";
 
 export function buildMessage(message: Message) {
   switch (message.type) {
@@ -91,13 +83,12 @@ export const buildTitleFromHistory = async ({
   history,
   openAIApiKey,
 }: {
-  history: Message[][];
+  history: Message[];
   openAIApiKey: string;
-}) => {
+}): Promise<string> => {
   // We can construct an LLMChain from a PromptTemplate and an LLM.
-  const getFirstMessage = (history: Message[][]): string => {
-    const [firstMessages] = history;
-    const [firstMessage] = firstMessages;
+  const getFirstMessage = (history: Message[]): string => {
+    const [firstMessage] = history;
     if (!firstMessage) return "";
     return firstMessage.message;
   };
@@ -109,38 +100,4 @@ export const buildTitleFromHistory = async ({
   const chainA = new LLMChain({ llm: model, prompt });
   const response = await chainA.call({ message: getFirstMessage(history) });
   return response?.text;
-};
-
-export const getEmbeddingsRetriever = async () => {
-  const vectorStore = await new DexieVectorStore(
-    new TransformerjsEmbeddings({}),
-    {
-      client: db.table("embeddings"),
-    },
-  );
-
-  const retriever = await vectorStore.asRetriever(6);
-
-  return retriever;
-};
-export const loadProcessedEmbedding = async () => {
-  const response = await fetch("/bucket/embeddings.json");
-  const {
-    embeddings,
-    createAt,
-  }: { embeddings: Embedding[]; createAt: number } = await response.json();
-
-  // Get the last_embeddings_date from local storage or some other store
-  const lastEmbeddingsDate = localStorage.getItem("last_embeddings_date");
-
-  // If there's no previous timestamp or the new one is greater, update the cache
-  if (!lastEmbeddingsDate || Number(lastEmbeddingsDate) < createAt) {
-    // Clear the table and add new entries
-
-    await db.table("embeddings").clear();
-    await db.table("embeddings").bulkAdd(embeddings);
-
-    // Update the last_embeddings_date in local storage
-    localStorage.setItem("last_embeddings_date", createAt.toString());
-  }
 };

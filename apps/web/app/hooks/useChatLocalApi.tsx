@@ -7,8 +7,11 @@ import {
   updateChatHistory,
   deleteChatHistory,
 } from "@/app/services/dexie";
-import { Chat } from "@/types/shared";
-import { submitChatMessage } from "../services/langchain";
+import { Chat, Message } from "@/types/shared";
+import {
+  submitChatMessage,
+  buildTitleFromHistory,
+} from "../services/langchain/messages";
 
 export const useListChatHistories = () => {
   return useQuery("chatHistoriesDexie", listChatHistories);
@@ -16,7 +19,7 @@ export const useListChatHistories = () => {
 
 export const useGetChatHistory = (id?: number) => {
   return useQuery(["chatHistoryDexie", id], () =>
-    id ? getChatHistory(id) : undefined,
+    id ? getChatHistory(id) : undefined
   );
 };
 
@@ -43,7 +46,7 @@ export const useUpdateChatHistory = () => {
       onSuccess: () => {
         queryClient.invalidateQueries("chatHistoriesDexie");
       },
-    },
+    }
   );
 };
 
@@ -58,4 +61,18 @@ export const useDeleteChatHistory = () => {
 
 export const useSubmitChatMessage = () => {
   return useMutation(submitChatMessage);
+};
+
+export const useBuildTitleFromHistory = () => {
+  return useMutation(
+    async ({
+      history,
+      openAIApiKey,
+    }: {
+      history: Message[];
+      openAIApiKey: string;
+    }) => {
+      return await buildTitleFromHistory({ history, openAIApiKey });
+    }
+  );
 };
