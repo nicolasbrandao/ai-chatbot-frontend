@@ -1,10 +1,13 @@
-import SignInButton from "./components/SignInButton";
+"use client";
+import Chat from "@/app/components/Chat/Chat";
+import { useChatState, useChatActions } from "@/app/hooks/useChat";
 
-export default function Home() {
+export default function Page() {
+  const chatState = useChatState();
+  const chatActions = useChatActions();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Home</h1>
-      <SignInButton />
-    </main>
+    <>
+      <Chat state={chatState} actions={chatActions} />
+    </>
   );
 }

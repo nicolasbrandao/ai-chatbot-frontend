@@ -235,7 +235,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     console.log({ savedChat });
 
     console.log("saved");
-    if (savedId !== undefined) push(`/chat/${savedId ?? rawId}`);
+    if (savedId !== undefined) push(`/${savedId ?? rawId}`);
   };
 
   return (
