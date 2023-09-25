@@ -37,3 +37,7 @@ export async function updateChatHistory(
 export async function deleteChatHistory(id: number): Promise<void> {
   await db.table("chat_history").delete(id);
 }
+
+export async function updateChats(chats: Chat[]) {
+  await db.table("chat_history").bulkPut(chats);
+}

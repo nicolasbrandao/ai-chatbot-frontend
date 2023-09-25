@@ -74,7 +74,6 @@ export default function PDFViewer({ url }: { url: string }) {
 
   useEffect(() => {
     rowVirtualizer.scrollToIndex(page);
-    console.log({ page });
   }, [page, rowVirtualizer]);
 
   return (

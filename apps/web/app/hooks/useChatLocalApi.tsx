@@ -6,6 +6,7 @@ import {
   createChatHistory,
   updateChatHistory,
   deleteChatHistory,
+  updateChats,
 } from "@/app/services/dexie";
 import { Chat, Message } from "@/types/shared";
 import {
@@ -39,12 +40,13 @@ export const useUpdateChatHistory = () => {
       return updateChatHistory(id, {
         ...updates,
         history: [...(updates?.history ?? [])],
-        user_email: updates.user_email ?? "lgpelin92@gmail.com",
+        user_email: updates.user_email ?? "",
       });
     },
     {
       onSuccess: () => {
         queryClient.invalidateQueries("chatHistoriesDexie");
+        queryClient.invalidateQueries("chatHistoryDexie");
       },
     }
   );
@@ -76,3 +78,13 @@ export const useBuildTitleFromHistory = () => {
     }
   );
 };
+
+export const useUpdateChats = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateChats, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("chatHistoriesDexie");
+      queryClient.invalidateQueries("chatHistoryDexie");
+    },
+  })
+}
