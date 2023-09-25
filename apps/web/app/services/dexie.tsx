@@ -12,9 +12,7 @@ export async function listChatHistories(): Promise<Chat[]> {
   return await db.table("chat_history").toArray();
 }
 
-export async function getChatHistory(
-  id: IndexableType,
-): Promise<Chat | null> {
+export async function getChatHistory(id: IndexableType): Promise<Chat | null> {
   const chatHistory = await db.table("chat_history").get(id);
   return chatHistory || null;
 }

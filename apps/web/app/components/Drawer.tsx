@@ -21,7 +21,7 @@ export default function Drawer() {
             <div className="mx-auto p-0">
               <button
                 className="btn btn-primary btn-wide"
-                onClick={() => push("/chat")}
+                onClick={() => push("/")}
               >
                 <PlusIcon className="h-6 w-6" />
                 New Chat
@@ -34,7 +34,7 @@ export default function Drawer() {
             histories!.map((history, i) => (
               <li
                 onClick={() => {
-                  push(`/chat/${history.id}`);
+                  push(`/${history.id}`);
                 }}
                 className="hover"
                 key={i}

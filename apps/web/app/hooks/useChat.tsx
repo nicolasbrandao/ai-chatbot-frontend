@@ -33,7 +33,7 @@ export type ChatActions = {
   handleSave: (rawId: string | undefined, chatHistory: Chat) => Promise<void>;
   updateChat: (
     rawId: string | undefined,
-    chatHistory: Chat
+    chatHistory: Chat,
   ) => Promise<Chat | null>;
   handleCompletion: ({
     message,
@@ -118,7 +118,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         payload: isLoading,
       }),
 
-    [isLoading]
+    [isLoading],
   );
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -247,7 +247,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     console.log({ savedChat });
 
     console.log("saved");
-    if (savedId !== undefined) push(`/chat/${savedId ?? rawId}`);
+    if (savedId !== undefined) push(`/${savedId ?? rawId}`);
   };
 
   return (
