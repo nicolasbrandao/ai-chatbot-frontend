@@ -32,7 +32,7 @@ export type ChatActions = {
   handleSave: (rawId: string | undefined, chatHistory: Chat) => Promise<void>;
   updateChat: (
     rawId: string | undefined,
-    chatHistory: Chat
+    chatHistory: Chat,
   ) => Promise<Chat | null>;
   handleCompletion: ({
     message,
@@ -118,7 +118,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         payload: isLoading,
       }),
 
-    [isLoading]
+    [isLoading],
   );
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {

@@ -61,7 +61,7 @@ const nextConfig = {
 
     config.module.rules.push({
       test: /\.node/,
-      use: 'raw-loader',
+      use: "raw-loader",
     });
     return config;
   },

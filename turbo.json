@@ -3,6 +3,7 @@
   "pipeline": {
     "start": {},
     "dev": { "cache": true },
+    "lint": {},
     "build": {
       "outputs": [".next/**", "!.next/cache/**"]
     }
