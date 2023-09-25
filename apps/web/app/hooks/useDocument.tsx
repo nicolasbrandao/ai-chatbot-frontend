@@ -24,9 +24,7 @@ const DocumentContext = createContext<DocumentProps | undefined>(undefined);
 export const DocumentProvider = ({ children }: PropsWithChildren) => {
   const [open, setOpenState] = useState(false);
   const [page, setPageState] = useState(0);
-  useEffect(() => {
-    console.log({open})
-  }, [open])
+
   const setOpen = () => setOpenState(true);
   const setClose = () => setOpenState(false);
   const setPage = (page: number) => setPageState(page);
