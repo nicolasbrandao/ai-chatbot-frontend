@@ -7,20 +7,20 @@ import {
   updateChatHistory,
   deleteChatHistory,
 } from "@/app/services/dexie";
-import { Chat, Message } from "@/types/shared";
+import { Chat, Message } from "@/shared/types";
 import {
   submitChatMessage,
   buildTitleFromHistory,
 } from "../services/langchain/messages";
 import { useSession } from "next-auth/react";
 
-export const useListChatHistories = () => {
-  return useQuery("chatHistoriesDexie", listChatHistories);
+export const useChats = () => {
+  return useQuery("chatsDexie", listChatHistories);
 };
 
-export const useGetChatHistory = (id?: number) => {
+export const useChat = (id?: number) => {
   const { data } = useSession();
-  return useQuery(["chatHistoryDexie", id], () =>
+  return useQuery(["chatDexie", id], () =>
     id
       ? getChatHistory(id)
       : Promise.resolve<Chat>({
@@ -32,16 +32,16 @@ export const useGetChatHistory = (id?: number) => {
   );
 };
 
-export const useCreateChatHistory = () => {
+export const useCreateChat = () => {
   const queryClient = useQueryClient();
   return useMutation(createChatHistory, {
     onSuccess: () => {
-      queryClient.invalidateQueries("chatHistoriesDexie");
+      queryClient.invalidateQueries("chatsDexie");
     },
   });
 };
 
-export const useUpdateChatHistory = () => {
+export const useUpdateChat = () => {
   const queryClient = useQueryClient();
   return useMutation(
     ({ id, updates }: { id: number; updates: Partial<Chat> }) => {
@@ -52,19 +52,19 @@ export const useUpdateChatHistory = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries("chatHistoriesDexie");
-        queryClient.invalidateQueries("chatHistoryDexie");
+        queryClient.invalidateQueries("chatsDexie");
+        queryClient.invalidateQueries("chatDexie");
       },
     },
   );
 };
 
-export const useDeleteChatHistory = () => {
+export const useDeleteChat = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteChatHistory, {
     onSuccess: () => {
-      queryClient.invalidateQueries("chatHistoriesDexie");
-      queryClient.invalidateQueries("chatHistoryDexie");
+      queryClient.invalidateQueries("chatsDexie");
+      queryClient.invalidateQueries("chatDexie");
     },
   });
 };
@@ -73,7 +73,7 @@ export const useSubmitChatMessage = () => {
   return useMutation(submitChatMessage);
 };
 
-export const useBuildTitleFromHistory = () => {
+export const useTitleFromHistory = () => {
   return useMutation(
     async ({
       history,

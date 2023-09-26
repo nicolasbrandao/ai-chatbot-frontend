@@ -1,4 +1,4 @@
-import { Message } from "@/types/shared";
+import { Message } from "@/shared/types";
 import { AIMessage, HumanMessage, SystemMessage } from "langchain/schema";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";

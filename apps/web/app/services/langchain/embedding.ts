@@ -1,4 +1,4 @@
-import { Embedding } from "@/types/shared";
+import { Embedding } from "@/shared/types";
 import Dexie from "dexie";
 import DexieVectorStore from "./DexieVectorStore";
 import { TransformerjsEmbeddings } from "./TransformerjsEmbeddings";
@@ -17,11 +17,11 @@ export const loadProcessedEmbedding = async () => {
 
   // Get the last_embeddings_date from local storage or some other store
   const lastEmbeddingsDate = localStorage.getItem("last_embeddings_date");
-
+  console.log({ lastEmbeddingsDate });
   // If there's no previous timestamp or the new one is greater, update the cache
   if (!lastEmbeddingsDate || Number(lastEmbeddingsDate) < createAt) {
     // Clear the table and add new entries
-
+    console.log("Updating embeddings cache");
     await db.table("embeddings").clear();
     await db.table("embeddings").bulkAdd(embeddings);
 

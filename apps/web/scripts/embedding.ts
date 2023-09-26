@@ -12,7 +12,7 @@ import process from "process";
 import path from "path";
 import fs from "fs";
 import ProgressBar from "progress";
-import { Embedding } from "@/types/shared";
+import { Embedding } from "@/shared/types";
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 512,

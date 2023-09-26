@@ -8,7 +8,7 @@ import { themeChange } from "theme-change";
 import SignInButton from "./SignInButton";
 import ApiKeyComponent from "./ApiKey";
 import { useParams } from "next/navigation";
-import { useGetChatHistory } from "../hooks/useChatLocalApi";
+import { useChat } from "../hooks/useChatLocalApi";
 
 const NavBar: React.FC = ({}) => {
   const session = useSession();
@@ -16,8 +16,8 @@ const NavBar: React.FC = ({}) => {
   const userImage = sessionData?.user?.image;
   const { id: rawId } = useParams();
   const id = rawId ? parseInt(rawId as string) : undefined;
-  const { data: chatData } = useGetChatHistory(id);
-  const title = chatData?.title ?? "Untitled";
+  const { data: chat } = useChat(id);
+  const title = chat?.title ?? "Untitled";
 
   useEffect(() => {
     themeChange(false);
