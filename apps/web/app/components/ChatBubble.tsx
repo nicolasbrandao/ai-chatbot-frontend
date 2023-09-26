@@ -43,7 +43,7 @@ export default function ChatBubble({
   const { mutateAsync: updateChatHistory } = useUpdateChat();
   const getSlicedHistory = () => {
     const messageEditedIndex = history.findIndex(
-      (h) => h.message === message.message
+      (h) => h.message === message.message,
     );
     let slicedHistory: Message[] = history.slice(0, messageEditedIndex);
     console.log({ slicedHistory });
