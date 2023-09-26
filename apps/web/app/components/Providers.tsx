@@ -1,10 +1,9 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { loadProcessedEmbedding } from "../services/langchain/embedding";
-import { ChatProvider } from "../hooks/useChat";
 import { DocumentProvider } from "../hooks/useDocument";
 
 const queryClient = new QueryClient();
@@ -19,9 +18,7 @@ export default function Providers({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
-        <ChatProvider>
-          <DocumentProvider>{children}</DocumentProvider>
-        </ChatProvider>
+        <DocumentProvider>{children}</DocumentProvider>
       </SessionProvider>
     </QueryClientProvider>
   );

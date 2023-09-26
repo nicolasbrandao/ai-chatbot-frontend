@@ -39,7 +39,7 @@ export default function Drawer() {
                 className="hover"
                 key={i}
               >
-                <ChatPreview chat_history={history.history} id={history.id} />
+                <ChatPreview id={history.id!} />
               </li>
             ))
           )}

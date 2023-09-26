@@ -9,7 +9,7 @@ export interface Message {
 }
 
 export interface Chat {
-  id: number;
+  id?: number | undefined;
   title?: string;
   history: Message[];
   user_email: string;

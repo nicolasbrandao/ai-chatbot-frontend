@@ -9,13 +9,23 @@ import {
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import Collapsible from "./Collapsble";
-import { useState } from "react";
-import { useChatActions, useChatState } from "../hooks/useChat";
-import Modal from "./Modal";
-import PDFViewer from "./PDFViewer";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useDocument } from "../hooks/useDocument";
+import {
+  useGetChatHistory,
+  useSubmitChatMessage,
+  useUpdateChatHistory,
+} from "../hooks/useChatLocalApi";
+import useApiKey from "../hooks/useApiKey";
+import { useParams } from "next/navigation";
 
-export default function ChatBubble({ message }: { message: Message }) {
+export default function ChatBubble({
+  message,
+  setAnswer,
+}: {
+  message: Message;
+  setAnswer: Dispatch<SetStateAction<string>>;
+}) {
   const session = useSession();
   const aiImage = "https://picsum.photos/id/237/200/300";
   const defaultImage = "https://picsum.photos/id/252/200/300";
@@ -24,13 +34,16 @@ export default function ChatBubble({ message }: { message: Message }) {
   const isAiMessage = message.type === "AI";
   const [isEditing, setIsEditing] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(message.message);
-  const { handleCompletion } = useChatActions();
-  const { data: chat } = useChatState();
+  const { mutateAsync: handleCompletion } = useSubmitChatMessage();
+  const { id: rawId } = useParams();
+  const id = rawId ? parseInt(rawId as string) : undefined;
+  const { data: chat } = useGetChatHistory(id);
   const history = chat?.history ?? [];
-
+  const { apiKey } = useApiKey();
+  const { mutateAsync: updateChatHistory } = useUpdateChatHistory();
   const getSlicedHistory = () => {
     const messageEditedIndex = history.findIndex(
-      (h) => h.message === message.message,
+      (h) => h.message === message.message
     );
     let slicedHistory: Message[] = history.slice(0, messageEditedIndex);
     console.log({ slicedHistory });
@@ -59,6 +72,44 @@ export default function ChatBubble({ message }: { message: Message }) {
       </div>
     );
   });
+
+  const handleEdition = async () => {
+    const slicedHistory = getSlicedHistory();
+    setIsEditing(false);
+    const messageEdited: Message = {
+      createdAt: Date.now(),
+      message: currentMessage,
+      type: "USER",
+    };
+    const slicedHistoryWithEditedMessage = [...slicedHistory, messageEdited];
+    updateChatHistory({
+      id: id!,
+      updates: { history: slicedHistoryWithEditedMessage },
+    });
+    const answer = await handleCompletion({
+      openAIApiKey: apiKey!,
+      setState: setAnswer,
+      message: currentMessage,
+      history: getSlicedHistory(),
+    });
+    const aiAnswerMessage: Message = {
+      createdAt: Date.now(),
+      message: answer.text,
+      sources: answer.sources,
+      type: "AI",
+    };
+    const editedHistoryWithAnswer = [
+      ...slicedHistoryWithEditedMessage,
+      aiAnswerMessage,
+    ];
+
+    updateChatHistory({
+      id: id!,
+      updates: { history: editedHistoryWithAnswer },
+    });
+    setCurrentMessage("");
+    setAnswer("");
+  };
 
   return (
     <>
@@ -96,15 +147,7 @@ export default function ChatBubble({ message }: { message: Message }) {
                 onChange={(e) => setCurrentMessage(e.target.value)}
               ></textarea>
               {!isAiMessage && (
-                <button
-                  onClick={async () => {
-                    setIsEditing(false);
-                    await handleCompletion({
-                      message: currentMessage,
-                      history: getSlicedHistory(),
-                    });
-                  }}
-                >
+                <button onClick={handleEdition}>
                   <ArrowPathIcon className="h-[15px] w-[15px]" />
                 </button>
               )}
