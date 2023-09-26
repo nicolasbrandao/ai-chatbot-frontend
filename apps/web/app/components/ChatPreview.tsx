@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChatBubbleLeftIcon,
   TrashIcon,
@@ -7,9 +7,9 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
-  useDeleteChatHistory,
-  useGetChatHistory,
-  useUpdateChatHistory,
+  useDeleteChat,
+  useChat,
+  useUpdateChat,
 } from "../hooks/useChatLocalApi";
 
 interface SimpleChatProps {
@@ -17,7 +17,7 @@ interface SimpleChatProps {
 }
 
 const ChatPreview: React.FC<SimpleChatProps> = ({ id }: SimpleChatProps) => {
-  const { data: chat } = useGetChatHistory(id);
+  const { data: chat } = useChat(id);
   const { title } = chat ?? {};
   return (
     <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
@@ -36,12 +36,16 @@ type PreviewCardProps = {
 const PreviewCard = ({ title, id }: PreviewCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
-  const { mutateAsync: updateChat } = useUpdateChatHistory();
+  const { mutateAsync: updateChat } = useUpdateChat();
 
   const handleSubmitNewTitle = async () => {
     await updateChat({ id, updates: { title: currentTitle } });
     setIsEditing(false);
   };
+
+  useEffect(() => {
+    setCurrentTitle(title ?? "");
+  }, [title]);
 
   return (
     <div className="flex gap-2 items-center justify-between w-full">
@@ -56,9 +60,15 @@ const PreviewCard = ({ title, id }: PreviewCardProps) => {
             value={currentTitle}
             onChange={(e) => setCurrentTitle(e.target.value)}
           />
-          <CheckIcon onClick={() => handleSubmitNewTitle()} />
+          <CheckIcon
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSubmitNewTitle();
+            }}
+          />
           <XMarkIcon
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setCurrentTitle(title ?? "");
               setIsEditing(false);
             }}
@@ -76,7 +86,7 @@ const PreviewCard = ({ title, id }: PreviewCardProps) => {
 };
 
 const DeleteChatButton = ({ id }: { id: number }) => {
-  const deleteChatHistory = useDeleteChatHistory();
+  const deleteChatHistory = useDeleteChat();
 
   const handleDelete = async () => {
     try {
@@ -110,7 +120,10 @@ const EditChatTitleButton = ({ setIsEditing }: EditButtonProps) => {
     <button className="btn">
       <PencilSquareIcon
         className="h-5 w-5 cursor-pointer"
-        onClick={() => setIsEditing(true)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsEditing(true);
+        }}
       />
     </button>
   );

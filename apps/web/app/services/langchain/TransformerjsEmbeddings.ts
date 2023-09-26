@@ -1,5 +1,5 @@
 "use client";
-import { EmbeddingWorkerMessage } from "@/types/shared";
+import { EmbeddingWorkerMessage } from "@/shared/types";
 import { Embeddings, EmbeddingsParams } from "langchain/embeddings/base";
 
 let worker: any;

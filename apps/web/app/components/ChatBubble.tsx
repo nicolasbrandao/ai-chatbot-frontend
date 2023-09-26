@@ -1,4 +1,4 @@
-import { Message } from "@/types/shared";
+import { Message } from "@/shared/types";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Markdown from "./Markdown";
@@ -12,9 +12,9 @@ import Collapsible from "./Collapsble";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useDocument } from "../hooks/useDocument";
 import {
-  useGetChatHistory,
+  useChat,
   useSubmitChatMessage,
-  useUpdateChatHistory,
+  useUpdateChat,
 } from "../hooks/useChatLocalApi";
 import useApiKey from "../hooks/useApiKey";
 import { useParams } from "next/navigation";
@@ -37,10 +37,10 @@ export default function ChatBubble({
   const { mutateAsync: handleCompletion } = useSubmitChatMessage();
   const { id: rawId } = useParams();
   const id = rawId ? parseInt(rawId as string) : undefined;
-  const { data: chat } = useGetChatHistory(id);
+  const { data: chat } = useChat(id);
   const history = chat?.history ?? [];
   const { apiKey } = useApiKey();
-  const { mutateAsync: updateChatHistory } = useUpdateChatHistory();
+  const { mutateAsync: updateChatHistory } = useUpdateChat();
   const getSlicedHistory = () => {
     const messageEditedIndex = history.findIndex(
       (h) => h.message === message.message

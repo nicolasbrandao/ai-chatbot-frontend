@@ -8,16 +8,17 @@ import PDFViewer from "./PDFViewer";
 import { useDocument } from "@/app/hooks/useDocument";
 import { useParams } from "next/navigation";
 import {
-  useBuildTitleFromHistory,
-  useCreateChatHistory,
-  useGetChatHistory,
+  useTitleFromHistory,
+  useCreateChat,
+  useChat,
   useSubmitChatMessage,
-  useUpdateChatHistory,
+  useUpdateChat,
 } from "../hooks/useChatLocalApi";
-import { use, useState } from "react";
+import { useState } from "react";
 import useApiKey from "../hooks/useApiKey";
-import { Message } from "@/types/shared";
+import { Message } from "@/shared/types";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const Chat: React.FC = () => {
   const { id: rawId } = useParams();
@@ -25,22 +26,23 @@ const Chat: React.FC = () => {
   const { data } = useSession();
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState("");
-
-  const { data: chat, isLoading } = useGetChatHistory(id);
+  const { push } = useRouter();
+  const { data: chat, isLoading } = useChat(id);
   console.log({ chat, isLoading });
-  const { mutateAsync: updateChatHistory } = useUpdateChatHistory();
-  const { mutateAsync: createChatHistory } = useCreateChatHistory();
+  const { mutateAsync: updateChatHistory } = useUpdateChat();
+  const { mutateAsync: createChatHistory } = useCreateChat();
 
   const { apiKey } = useApiKey();
-  const history = chat?.history ?? [];
+  const history: Message[] = chat?.history ?? [];
   const { mutateAsync: submitChatMessage, isLoading: isGenerating } =
     useSubmitChatMessage();
-  const { mutateAsync: builTitle } = useBuildTitleFromHistory();
+  const { mutateAsync: builTitle } = useTitleFromHistory();
   const handleCompletion = async ({}) => {
     if (!apiKey) return alert("Please enter an API key");
+    setMessage("");
     const humanMessage: Message = {
       type: "USER",
-      message: message,
+      message,
       createdAt: Date.now(),
     };
     const historyWithQuestion = [...history, humanMessage];
@@ -83,8 +85,8 @@ const Chat: React.FC = () => {
       id: (savedId ?? id)!,
       updates: { history: [...historyWithAnswer] },
     });
-
     setAnswer("");
+    if (!id) push(`/${savedId}`);
   };
 
   const { open, setClose } = useDocument();
@@ -130,8 +132,9 @@ const Chat: React.FC = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyUp={async (e) => {
+                  e.preventDefault();
                   if (e.key === "Enter" && !e.shiftKey) {
-                    await handleCompletion({ message, history });
+                    return await handleCompletion({ message, history });
                   }
                 }}
                 placeholder="Write your message here..."

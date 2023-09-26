@@ -1,4 +1,4 @@
-import { Chat } from "@/types/shared";
+import { Chat } from "@/shared/types";
 import Dexie, { IndexableType } from "dexie";
 
 const db = new Dexie("chatHistoryDB");
