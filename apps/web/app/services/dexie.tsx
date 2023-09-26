@@ -28,7 +28,7 @@ export async function createChatHistory(
 
 export async function updateChatHistory(
   id: number,
-  updates: OmitChatHistoryKeys,
+  updates: Partial<Chat>,
 ): Promise<Chat | null> {
   await db.table("chat_history").update(id, updates);
   return await getChatHistory(id);

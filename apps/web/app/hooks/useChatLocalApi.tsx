@@ -6,21 +6,29 @@ import {
   createChatHistory,
   updateChatHistory,
   deleteChatHistory,
-  updateChats,
 } from "@/app/services/dexie";
 import { Chat, Message } from "@/types/shared";
 import {
   submitChatMessage,
   buildTitleFromHistory,
 } from "../services/langchain/messages";
+import { useSession } from "next-auth/react";
 
 export const useListChatHistories = () => {
   return useQuery("chatHistoriesDexie", listChatHistories);
 };
 
 export const useGetChatHistory = (id?: number) => {
+  const { data } = useSession();
   return useQuery(["chatHistoryDexie", id], () =>
-    id ? getChatHistory(id) : undefined
+    id
+      ? getChatHistory(id)
+      : Promise.resolve<Chat>({
+          created_at: Date.now(),
+          id: undefined,
+          history: [],
+          user_email: data?.user?.email ?? "",
+        }),
   );
 };
 
@@ -39,7 +47,6 @@ export const useUpdateChatHistory = () => {
     ({ id, updates }: { id: number; updates: Partial<Chat> }) => {
       return updateChatHistory(id, {
         ...updates,
-        history: [...(updates?.history ?? [])],
         user_email: updates.user_email ?? "",
       });
     },
@@ -48,7 +55,7 @@ export const useUpdateChatHistory = () => {
         queryClient.invalidateQueries("chatHistoriesDexie");
         queryClient.invalidateQueries("chatHistoryDexie");
       },
-    }
+    },
   );
 };
 
@@ -57,6 +64,7 @@ export const useDeleteChatHistory = () => {
   return useMutation(deleteChatHistory, {
     onSuccess: () => {
       queryClient.invalidateQueries("chatHistoriesDexie");
+      queryClient.invalidateQueries("chatHistoryDexie");
     },
   });
 };
@@ -75,16 +83,6 @@ export const useBuildTitleFromHistory = () => {
       openAIApiKey: string;
     }) => {
       return await buildTitleFromHistory({ history, openAIApiKey });
-    }
+    },
   );
 };
-
-export const useUpdateChats = () => {
-  const queryClient = useQueryClient();
-  return useMutation(updateChats, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("chatHistoriesDexie");
-      queryClient.invalidateQueries("chatHistoryDexie");
-    },
-  })
-}

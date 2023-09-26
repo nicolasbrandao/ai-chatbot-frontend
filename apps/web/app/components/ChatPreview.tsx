@@ -1,26 +1,27 @@
 import React, { useState } from "react";
-import { ChatBubbleLeftIcon, TrashIcon, PencilSquareIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useDeleteChatHistory } from "../hooks/useChatLocalApi";
-import { useChatsActions, useChatsState } from "../hooks/useChats";
+import {
+  ChatBubbleLeftIcon,
+  TrashIcon,
+  PencilSquareIcon,
+  CheckIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import {
+  useDeleteChatHistory,
+  useGetChatHistory,
+  useUpdateChatHistory,
+} from "../hooks/useChatLocalApi";
 
 interface SimpleChatProps {
   id: number;
 }
 
-const ChatPreview: React.FC<SimpleChatProps> = ({
-  id,
-}: SimpleChatProps) => {
-  const { chats } = useChatsState();
-  const chat = chats.find((chat) => chat.id === id) ?? {};
-  console.log({chat});
-  console.log({chats});
-  const { title } = chats.find((chat) => chat.id === id) ?? {};
+const ChatPreview: React.FC<SimpleChatProps> = ({ id }: SimpleChatProps) => {
+  const { data: chat } = useGetChatHistory(id);
+  const { title } = chat ?? {};
   return (
     <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
-      <PreviewCard
-        title={title}
-        id={id}
-      />
+      <PreviewCard title={title} id={id} />
     </div>
   );
 };
@@ -35,36 +36,41 @@ type PreviewCardProps = {
 const PreviewCard = ({ title, id }: PreviewCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
-  const { setTitle } = useChatsActions();
+  const { mutateAsync: updateChat } = useUpdateChatHistory();
 
-  const handleSubmitNewTitle = () => {
-    setTitle(id, currentTitle ?? "");
+  const handleSubmitNewTitle = async () => {
+    await updateChat({ id, updates: { title: currentTitle } });
     setIsEditing(false);
-  }
+  };
 
   return (
     <div className="flex gap-2 items-center justify-between w-full">
       <ChatBubbleLeftIcon className="h-5 w-5" />
-      
-      {isEditing ?
+
+      {isEditing ? (
         <>
-          <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" value={currentTitle} onChange={(e) => setCurrentTitle(e.target.value)} />
-          <CheckIcon onClick={() => handleSubmitNewTitle()}/>
-          <XMarkIcon onClick={() => {
-            setCurrentTitle(title ?? "");
-            setIsEditing(false)
-          }} />
-        </>  
-        :
-      (
+          <input
+            type="text"
+            placeholder="Type here"
+            className="input input-bordered w-full max-w-xs"
+            value={currentTitle}
+            onChange={(e) => setCurrentTitle(e.target.value)}
+          />
+          <CheckIcon onClick={() => handleSubmitNewTitle()} />
+          <XMarkIcon
+            onClick={() => {
+              setCurrentTitle(title ?? "");
+              setIsEditing(false);
+            }}
+          />
+        </>
+      ) : (
         <>
           <p className="rounded">{title}</p>
           <EditChatTitleButton setIsEditing={setIsEditing} />
           <DeleteChatButton id={id} />
         </>
-      )
-      }
-
+      )}
     </div>
   );
 };
@@ -97,10 +103,9 @@ const DeleteChatButton = ({ id }: { id: number }) => {
 
 type EditButtonProps = {
   setIsEditing: (isEditing: boolean) => void;
-}
+};
 
 const EditChatTitleButton = ({ setIsEditing }: EditButtonProps) => {
-
   return (
     <button className="btn">
       <PencilSquareIcon

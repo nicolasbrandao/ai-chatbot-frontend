@@ -35,7 +35,7 @@ export const getEmbeddingsRetriever = async () => {
     new TransformerjsEmbeddings({}),
     {
       client: db.table("embeddings"),
-    }
+    },
   );
 
   const retriever = await vectorStore.asRetriever(6);

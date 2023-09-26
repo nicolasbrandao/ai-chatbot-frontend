@@ -3,24 +3,92 @@
 import ChatBubble from "./ChatBubble";
 import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import TextareaAutosize from "react-textarea-autosize";
-import { ChatActions, ChatState } from "@/app/hooks/useChat";
 import Modal from "./Modal";
 import PDFViewer from "./PDFViewer";
 import { useDocument } from "@/app/hooks/useDocument";
+import { useParams } from "next/navigation";
+import {
+  useBuildTitleFromHistory,
+  useCreateChatHistory,
+  useGetChatHistory,
+  useSubmitChatMessage,
+  useUpdateChatHistory,
+} from "../hooks/useChatLocalApi";
+import { use, useState } from "react";
+import useApiKey from "../hooks/useApiKey";
+import { Message } from "@/types/shared";
+import { useSession } from "next-auth/react";
 
-interface ChatProps {
-  state: ChatState;
-  actions: ChatActions;
-}
+const Chat: React.FC = () => {
+  const { id: rawId } = useParams();
+  const id = rawId ? parseInt(rawId as string) : undefined;
+  const { data } = useSession();
+  const [answer, setAnswer] = useState("");
+  const [message, setMessage] = useState("");
 
-const Chat: React.FC<ChatProps> = ({ state, actions }) => {
-  const { data, isGenerating, answer, message } = state;
+  const { data: chat, isLoading } = useGetChatHistory(id);
+  console.log({ chat, isLoading });
+  const { mutateAsync: updateChatHistory } = useUpdateChatHistory();
+  const { mutateAsync: createChatHistory } = useCreateChatHistory();
 
-  const history = data?.history ?? [];
-  const { handleChange, handleCompletion } = actions;
+  const { apiKey } = useApiKey();
+  const history = chat?.history ?? [];
+  const { mutateAsync: submitChatMessage, isLoading: isGenerating } =
+    useSubmitChatMessage();
+  const { mutateAsync: builTitle } = useBuildTitleFromHistory();
+  const handleCompletion = async ({}) => {
+    if (!apiKey) return alert("Please enter an API key");
+    const humanMessage: Message = {
+      type: "USER",
+      message: message,
+      createdAt: Date.now(),
+    };
+    const historyWithQuestion = [...history, humanMessage];
+    let savedId: number;
+    if (id !== undefined) {
+      savedId = id;
+      updateChatHistory({ id: id!, updates: { history: historyWithQuestion } });
+    } else {
+      const title = await builTitle({
+        history: historyWithQuestion,
+        openAIApiKey: apiKey,
+      });
 
-  const { open, page, setClose } = useDocument();
+      const newChat = await createChatHistory({
+        title,
+        user_email: data?.user?.email ?? "",
+        history: historyWithQuestion,
+      });
+      const createdId = newChat!.id!;
+      savedId = createdId;
+    }
 
+    const answerResponse = await submitChatMessage({
+      message,
+      history,
+      openAIApiKey: apiKey,
+      setState: setAnswer,
+    });
+
+    const aiMessage: Message = {
+      createdAt: Date.now(),
+      type: "AI",
+      message: answerResponse.text,
+      sources: answerResponse.sources,
+    };
+
+    const historyWithAnswer = [...historyWithQuestion, aiMessage];
+
+    await updateChatHistory({
+      id: (savedId ?? id)!,
+      updates: { history: [...historyWithAnswer] },
+    });
+
+    setAnswer("");
+  };
+
+  const { open, setClose } = useDocument();
+  if (isLoading) return <div className="loading loading-lg" />;
   return (
     <>
       <section className="flex flex-col w-screen h-full md:min-w-[600px] p-1">
@@ -29,11 +97,22 @@ const Chat: React.FC<ChatProps> = ({ state, actions }) => {
             {history
               .filter((message) => message.type !== "SYSTEM")
               .map((message, index) => {
-                return <ChatBubble message={message} key={`${index}`} />;
+                return (
+                  <ChatBubble
+                    setAnswer={setAnswer}
+                    message={message}
+                    key={`${index}`}
+                  />
+                );
               })}
-            {isGenerating && (
+            {answer && answer !== "" && (
               <ChatBubble
-                message={{ type: "AI", message: answer, createdAt: Date.now() }}
+                setAnswer={setAnswer}
+                message={{
+                  type: "AI",
+                  message: answer,
+                  createdAt: Date.now(),
+                }}
               />
             )}
           </div>
@@ -49,7 +128,7 @@ const Chat: React.FC<ChatProps> = ({ state, actions }) => {
               <TextareaAutosize
                 className="textarea w-full resize-none"
                 value={message}
-                onChange={(e) => handleChange(e)}
+                onChange={(e) => setMessage(e.target.value)}
                 onKeyUp={async (e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     await handleCompletion({ message, history });
