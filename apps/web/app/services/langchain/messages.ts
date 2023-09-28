@@ -95,9 +95,9 @@ export const buildTitleFromHistory = async ({
 
   const model = new OpenAI({ openAIApiKey, temperature: 0 });
   const prompt = PromptTemplate.fromTemplate(
-    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}",
+    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}.",
   );
   const chainA = new LLMChain({ llm: model, prompt });
   const response = await chainA.call({ message: getFirstMessage(history) });
-  return response?.text;
+  return response?.text.trim().replace(/^"|"$/g, "");
 };

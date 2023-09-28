@@ -2,12 +2,28 @@ import { Bars3Icon, PlusIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { useChats } from "../hooks/useChatLocalApi";
 import ChatPreview from "./ChatPreview";
+import {
+  isToday,
+  isYesterday,
+  isPreviousWeek,
+  isPreviousMonth,
+} from "@/shared/utils";
 
 export default function Drawer() {
   const { data: chats, isLoading } = useChats();
   const { push } = useRouter();
+
+  const todayChats =
+    chats?.filter((chat) => isToday(new Date(chat.created_at))) ?? [];
+  const yesterdayChats =
+    chats?.filter((chat) => isYesterday(new Date(chat.created_at))) ?? [];
+  const previousWeekChats =
+    chats?.filter((chat) => isPreviousWeek(new Date(chat.created_at))) ?? [];
+  const previousMonth =
+    chats?.filter((chat) => isPreviousMonth(new Date(chat.created_at))) ?? [];
+
   return (
-    <div className="drawer">
+    <div className="drawer z-10">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <label htmlFor="my-drawer" className="btn drawer-button">
@@ -29,19 +45,74 @@ export default function Drawer() {
             </div>
           </li>
           {isLoading ? (
-            <span className="loading loading-spinner loading-lg mx-auto"></span>
+            <span className="loading loading-spinner loading-lg mx-auto" />
           ) : (
-            chats!.map((history, i) => (
-              <li
-                onClick={() => {
-                  push(`/${history.id}`);
-                }}
-                className="hover"
-                key={i}
-              >
-                <ChatPreview id={history.id!} />
-              </li>
-            ))
+            <>
+              {todayChats.length > 0 && (
+                <>
+                  <span className="font-bold text-xs divider">Today</span>
+                  {todayChats!.map((history, i) => (
+                    <li
+                      onClick={() => {
+                        push(`/${history.id}`);
+                      }}
+                      key={i}
+                    >
+                      <ChatPreview id={history.id!} />
+                    </li>
+                  ))}
+                </>
+              )}
+              {yesterdayChats.length > 0 && (
+                <>
+                  <span className="font-bold text-xs divider">Yesterday</span>
+                  {yesterdayChats!.map((history, i) => (
+                    <li
+                      onClick={() => {
+                        push(`/${history.id}`);
+                      }}
+                      key={i}
+                    >
+                      <ChatPreview id={history.id!} />
+                    </li>
+                  ))}
+                </>
+              )}
+              {previousWeekChats.length > 0 && (
+                <>
+                  <span className="font-bold text-xs divider">
+                    Previous 7 Days
+                  </span>
+                  {previousWeekChats!.map((history, i) => (
+                    <li
+                      onClick={() => {
+                        push(`/${history.id}`);
+                      }}
+                      key={i}
+                    >
+                      <ChatPreview id={history.id!} />
+                    </li>
+                  ))}
+                </>
+              )}
+              {previousMonth.length > 0 && (
+                <>
+                  <span className="font-bold text-xs divider">
+                    Older than 7 Days
+                  </span>
+                  {previousMonth!.map((history, i) => (
+                    <li
+                      onClick={() => {
+                        push(`/${history.id}`);
+                      }}
+                      key={i}
+                    >
+                      <ChatPreview id={history.id!} />
+                    </li>
+                  ))}
+                </>
+              )}
+            </>
           )}
         </ul>
       </div>

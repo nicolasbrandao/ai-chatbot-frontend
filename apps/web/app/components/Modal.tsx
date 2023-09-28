@@ -1,6 +1,4 @@
-"use client";
-
-import { PropsWithChildren, ReactNode, useRef } from "react";
+import { ReactNode } from "react";
 
 type Props = {
   children: ReactNode;

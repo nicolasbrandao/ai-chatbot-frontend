@@ -90,12 +90,13 @@ const Chat: React.FC = () => {
   };
 
   const { open, setClose } = useDocument();
-  if (isLoading) return <div className="loading loading-lg" />;
+  if (isLoading) return <div className="loading loading-lg mx-auto" />;
+
   return (
     <>
-      <section className="flex flex-col w-screen h-full md:min-w-[600px] p-1">
+      <section className="flex flex-col w-full h-full md:min-w-[300px] p-1">
         <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
-          <div className="min-h-full mb-[60px]">
+          <div className="min-h-full mb-[70px]">
             {history
               .filter((message) => message.type !== "SYSTEM")
               .map((message, index) => {
@@ -118,9 +119,10 @@ const Chat: React.FC = () => {
               />
             )}
           </div>
-          <div className="flex flex-col gap-4 bg-base-300 fixed bottom-0 left-0 w-full">
+          <div className="flex gap-4 bg-base-300 fixed bottom-0 left-0 w-full py-2">
+            <div className="md:w-[310px]" />
             <form
-              className="flex flex-start bg-base-300 gap-4 p-1 rounded-xl w-fit mx-auto md:min-w-[600px]"
+              className="flex flex-start bg-base-300 gap-4 p-1 rounded-xl w-fit mx-auto md:flex-1 md:pr-4"
               onSubmit={async (e) => {
                 e.preventDefault();
                 console.log("submitting");
