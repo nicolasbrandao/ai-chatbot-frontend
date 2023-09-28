@@ -15,9 +15,11 @@ import ApiKeyComponent from "./ApiKey";
 import { useParams } from "next/navigation";
 import { useChat } from "../hooks/useChatLocalApi";
 import { useRouter } from "next/navigation";
+import { useTheme } from "../hooks/useTheme";
 
 const NavBar: React.FC = ({}) => {
   const { push } = useRouter();
+  const { theme, dispatch } = useTheme();
   const session = useSession();
   const { data: sessionData } = session;
   const userImage = sessionData?.user?.image;
@@ -74,10 +76,16 @@ const NavBar: React.FC = ({}) => {
             <p className="w-[150px] p-0">Toggle Theme</p>
             <label className="swap swap-rotate">
               <input
-                data-toggle-theme="forest,light"
+                data-toggle-theme="dark,light"
                 data-act-class="ACTIVECLASS"
                 type="checkbox"
-                onChange={() => themeChange()}
+                onChange={() => {
+                  themeChange();
+                  dispatch({
+                    type: "UPDATE_THEME",
+                    payload: theme === "dark" ? "light" : "dark",
+                  });
+                }}
               />
               <SunIcon className="swap-on fill-current w-5 h-5" />
               <MoonIcon className="swap-off fill-current w-5 h-5" />
