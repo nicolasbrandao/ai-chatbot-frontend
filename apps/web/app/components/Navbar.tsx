@@ -42,7 +42,7 @@ const NavBar: React.FC = ({}) => {
       <div className="flex-none md:hidden">
         <Drawer />
       </div>
-      <div className="w-[200px] md:w-fit">
+      <div className="w-[150px] md:w-fit">
         <p className="text-xl truncate mx-auto">{title}</p>
       </div>
       <div className="dropdown dropdown-end">
@@ -52,7 +52,7 @@ const NavBar: React.FC = ({}) => {
               <UserCircleIcon className="h-[40px] w-[40px] cursor-pointer" />
             ) : (
               <Image
-                className="rounded-full cursor-pointer"
+                className="rounded-full cursor-pointer h-[40px] w-[40px]"
                 src={userImage}
                 alt="User Image"
                 width={40}
