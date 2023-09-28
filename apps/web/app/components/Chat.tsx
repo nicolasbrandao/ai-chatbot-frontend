@@ -90,7 +90,8 @@ const Chat: React.FC = () => {
   };
 
   const { open, setClose } = useDocument();
-  if (isLoading) return <div className="loading loading-lg" />;
+  if (isLoading) return <div className="loading loading-lg mx-auto" />;
+
   return (
     <>
       <section className="flex flex-col w-full h-full md:min-w-[300px] p-1">
