@@ -7,8 +7,8 @@ import {
   ArrowPathIcon,
   ClipboardIcon,
   PencilSquareIcon,
+  BookOpenIcon,
 } from "@heroicons/react/24/outline";
-import Collapsible from "./Collapsble";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useDocument } from "../hooks/useDocument";
 import {
@@ -61,15 +61,15 @@ export default function ChatBubble({
     const sourceDescription = source.pageContent;
     const pageNumber = source.metadata?.loc?.pageNumber;
     return (
-      <div
+      <li
         key={`${index}-${source}`}
-        className="tooltip p-1"
+        className="tooltip p-1 flex items-center"
         data-tip={sourceDescription}
       >
-        <button className="btn" onClick={() => handleOpenSource(pageNumber)}>
-          {index}
+        <button className="w-full" onClick={() => handleOpenSource(pageNumber)}>
+          {`Source ${index + 1}`}
         </button>
-      </div>
+      </li>
     );
   });
 
@@ -130,15 +130,11 @@ export default function ChatBubble({
             {dateFormatter(new Date(message.createdAt).toISOString())}
           </time>
         </div>
-        <div
-          className={`chat-bubble  text-base-content ${
-            isAiMessage ? "bg-base-200" : ""
-          }`}
-        >
+        <div className="chat-bubble text-base-content bg-base-200">
           {!isEditing ? (
-            <Collapsible collapsedContent={sourcesContent}>
+            <>
               <Markdown markdown={message.message} />
-            </Collapsible>
+            </>
           ) : (
             <div>
               <textarea
@@ -154,19 +150,33 @@ export default function ChatBubble({
             </div>
           )}
         </div>
-        <div className="chat-footer opacity-50 flex">
+        <div className="chat-footer opacity-50 flex gap-1">
           <div
             className="flex gap-1 cursor-pointer"
             onClick={() => navigator.clipboard.writeText(message.message)}
           >
             <ClipboardIcon className="h-4 w-4 mt-1" />
           </div>
-          {!isAiMessage && (
-            <div
-              className="flex gap-1 cursor-pointer"
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              <PencilSquareIcon className="h-4 w-4 mt-1" />
+          {!isAiMessage ? (
+            <>
+              <div
+                className="flex gap-1 cursor-pointer"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                <PencilSquareIcon className="h-4 w-4 mt-1" />
+              </div>
+            </>
+          ) : (
+            <div className="dropdown">
+              <label tabIndex={0}>
+                <BookOpenIcon className="h-4 w-4 mt-1 cursor-pointer" />
+              </label>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu menu-xs p-2 shadow bg-base-300 rounded-box w-[95px]"
+              >
+                {sourcesContent}
+              </ul>
             </div>
           )}
         </div>

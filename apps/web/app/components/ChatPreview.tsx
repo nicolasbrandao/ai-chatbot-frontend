@@ -20,7 +20,7 @@ const ChatPreview: React.FC<SimpleChatProps> = ({ id }: SimpleChatProps) => {
   const { data: chat } = useChat(id);
   const { title } = chat ?? {};
   return (
-    <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
+    <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto px-2">
       <PreviewCard title={title} id={id} />
     </div>
   );
@@ -49,39 +49,85 @@ const PreviewCard = ({ title, id }: PreviewCardProps) => {
 
   return (
     <div className="flex gap-2 items-center justify-between w-full">
-      <ChatBubbleLeftIcon className="h-5 w-5" />
-
+      <button className="btn">
+        <ChatBubbleLeftIcon className="h-4 w-4" />
+      </button>
       {isEditing ? (
         <>
           <input
             type="text"
             placeholder="Type here"
-            className="input input-bordered w-full max-w-xs"
+            className="input w-[85px] max-w-xs px-1"
             value={currentTitle}
             onChange={(e) => setCurrentTitle(e.target.value)}
           />
-          <CheckIcon
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSubmitNewTitle();
-            }}
+          <SubmitTitleButton
+            handleSubmitNewTitle={handleSubmitNewTitle}
+            title={title}
           />
-          <XMarkIcon
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentTitle(title ?? "");
-              setIsEditing(false);
-            }}
+          <CancelTitleEditButton
+            setCurrentTitle={setCurrentTitle}
+            setIsEditing={setIsEditing}
+            title={title}
           />
         </>
       ) : (
         <>
-          <p className="rounded">{title}</p>
+          <div className="tooltip" data-tip={title}>
+            <p className="rounded w-[85px] truncate">{title}</p>
+          </div>
           <EditChatTitleButton setIsEditing={setIsEditing} />
           <DeleteChatButton id={id} />
         </>
       )}
     </div>
+  );
+};
+
+type SubmitTitleButtonProps = {
+  title: string | undefined;
+  handleSubmitNewTitle: (title: string) => void;
+};
+
+const SubmitTitleButton = ({
+  handleSubmitNewTitle,
+  title,
+}: SubmitTitleButtonProps) => {
+  return (
+    <button className="btn">
+      <CheckIcon
+        className="h-4 w-4 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleSubmitNewTitle(title ?? "");
+        }}
+      />
+    </button>
+  );
+};
+
+type CancelTitleEditButtonProps = {
+  title: string | undefined;
+  setCurrentTitle: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const CancelTitleEditButton = ({
+  setCurrentTitle,
+  setIsEditing,
+  title,
+}: CancelTitleEditButtonProps) => {
+  return (
+    <button className="btn">
+      <XMarkIcon
+        className="h-4 w-4 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setCurrentTitle(title ?? "");
+          setIsEditing(false);
+        }}
+      />
+    </button>
   );
 };
 
@@ -101,7 +147,7 @@ const DeleteChatButton = ({ id }: { id: number }) => {
   return (
     <button className="btn">
       <TrashIcon
-        className="h-5 w-5 cursor-pointer"
+        className="h-4 w-4 cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           handleDelete();
@@ -119,7 +165,7 @@ const EditChatTitleButton = ({ setIsEditing }: EditButtonProps) => {
   return (
     <button className="btn">
       <PencilSquareIcon
-        className="h-5 w-5 cursor-pointer"
+        className="h-4 w-4 cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           setIsEditing(true);
