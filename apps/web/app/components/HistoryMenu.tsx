@@ -25,11 +25,11 @@ export default function HistoryMenu() {
     chats?.filter((chat) => isPreviousMonth(new Date(chat.created_at))) ?? [];
 
   return (
-    <div className="hidden md:menu p-4 w-fit min-h-full bg-base-200 text-base-content">
-      <ul>
-        {isLoading ? (
-          <span className="loading loading-spinner loading-lg mx-auto" />
-        ) : (
+    <div className="hidden md:menu p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content">
+      {isLoading ? (
+        <span className="loading loading-spinner loading-lg m-auto" />
+      ) : (
+        <ul className="w-full h-full">
           <>
             {todayChats.length > 0 && (
               <>
@@ -96,8 +96,8 @@ export default function HistoryMenu() {
               </>
             )}
           </>
-        )}
-      </ul>
+        </ul>
+      )}
     </div>
   );
 }
