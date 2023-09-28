@@ -43,7 +43,7 @@ const NavBar: React.FC = ({}) => {
         <Drawer />
       </div>
       <div className="w-[200px] md:w-fit">
-        <p className="text-xl truncate">{title}</p>
+        <p className="text-xl truncate mx-auto">{title}</p>
       </div>
       <div className="dropdown dropdown-end">
         <label tabIndex={0} className="rounded-full">
