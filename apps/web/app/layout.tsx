@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import NavBar from "./components/Navbar";
 import HistoryMenu from "./components/HistoryMenu";
+import "react-toastify/dist/ReactToastify.css";
+import Toast from "./components/Toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,6 +31,7 @@ export default function RootLayout({
             </div>
           </div>
         </Providers>
+        <Toast />
       </body>
     </html>
   );
