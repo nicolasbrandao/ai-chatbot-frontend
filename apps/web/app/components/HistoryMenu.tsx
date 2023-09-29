@@ -27,7 +27,11 @@ export default function HistoryMenu() {
     chats?.filter((chat) => isPreviousMonth(new Date(chat.created_at))) ?? [];
 
   return (
-    <div className={`hidden md:${!session ? "hidden" : "menu"} p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content`}>
+    <div
+      className={`hidden md:${
+        !session ? "hidden" : "menu"
+      } p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content`}
+    >
       {isLoading ? (
         <span className="loading loading-spinner loading-lg m-auto" />
       ) : (

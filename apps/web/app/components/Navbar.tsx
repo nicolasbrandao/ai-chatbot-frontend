@@ -30,7 +30,13 @@ const NavBar: React.FC = ({}) => {
   }, []);
 
   return (
-    <div className={`${!sessionData ? "hidden" : "navbar"} bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-50 border-b border-base-200 ${!sessionData ?? "hidden"}`}>
+    <div
+      className={`${
+        !sessionData ? "hidden" : "navbar"
+      } bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-50 border-b border-base-200 ${
+        !sessionData ?? "hidden"
+      }`}
+    >
       <button
         className="w-[290px] hidden md:btn md:btn-primary"
         onClick={() => push("/")}
