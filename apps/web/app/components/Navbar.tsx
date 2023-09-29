@@ -10,7 +10,6 @@ import {
 import Drawer from "./Drawer";
 import { useEffect } from "react";
 import { themeChange } from "theme-change";
-import SignInButton from "./SignInButton";
 import ApiKeyComponent from "./ApiKey";
 import { useParams } from "next/navigation";
 import { useChat } from "../hooks/useChatLocalApi";
@@ -33,7 +32,13 @@ const NavBar: React.FC = ({}) => {
   }, []);
 
   return (
-    <div className="navbar bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-50 border-b border-base-200">
+    <div
+      className={`${
+        !sessionData ? "hidden" : "navbar"
+      } bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-50 border-b border-base-200 ${
+        !sessionData ?? "hidden"
+      }`}
+    >
       <button
         className="w-[290px] hidden md:btn md:btn-primary"
         onClick={() => push("/")}
@@ -62,7 +67,9 @@ const NavBar: React.FC = ({}) => {
               />
             )
           ) : (
-            <SignInButton />
+            <button className="btn" onClick={() => push("/login")}>
+              Sign In
+            </button>
           )}
         </label>
         <ul

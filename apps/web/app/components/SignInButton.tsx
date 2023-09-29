@@ -1,21 +1,16 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { BuiltInProviderType } from "next-auth/providers/index";
+import { LiteralUnion, signIn } from "next-auth/react";
 
-export default function SignInButton() {
-  const { data: session } = useSession();
-
-  if (session && session.user) {
-    return (
-      <button className="btn" onClick={() => signOut()}>
-        Sign Out
-      </button>
-    );
-  }
-
+export default function SignInButton({
+  provider,
+}: {
+  provider: LiteralUnion<BuiltInProviderType, string>;
+}) {
   return (
-    <button className="btn" onClick={() => signIn()}>
-      Sign In
+    <button className="btn w-[250px]" onClick={() => signIn(provider)}>
+      Sign In with {provider}
     </button>
   );
 }
