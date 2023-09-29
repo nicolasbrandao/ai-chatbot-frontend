@@ -28,9 +28,7 @@ export default function HistoryMenu() {
 
   return (
     <div
-      className={`hidden md:${
-        !session ? "hidden" : "menu"
-      } p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content`}
+      className={`${session ? "hidden md:menu" : "hidden"} p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content`}
     >
       {isLoading ? (
         <span className="loading loading-spinner loading-lg m-auto" />
