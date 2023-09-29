@@ -5,6 +5,7 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { loadProcessedEmbedding } from "../services/langchain/embedding";
 import { DocumentProvider } from "../hooks/useDocument";
+import { ThemeProvider } from "../hooks/useTheme";
 
 const queryClient = new QueryClient();
 
@@ -18,7 +19,9 @@ export default function Providers({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
-        <DocumentProvider>{children}</DocumentProvider>
+        <ThemeProvider>
+          <DocumentProvider>{children}</DocumentProvider>
+        </ThemeProvider>
       </SessionProvider>
     </QueryClientProvider>
   );

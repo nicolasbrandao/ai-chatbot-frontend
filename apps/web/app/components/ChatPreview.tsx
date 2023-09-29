@@ -11,6 +11,8 @@ import {
   useChat,
   useUpdateChat,
 } from "../hooks/useChatLocalApi";
+import { toast } from "react-toastify";
+import { useTheme } from "../hooks/useTheme";
 
 interface SimpleChatProps {
   id: number;
@@ -133,14 +135,13 @@ const CancelTitleEditButton = ({
 
 const DeleteChatButton = ({ id }: { id: number }) => {
   const deleteChatHistory = useDeleteChat();
-
+  const { theme } = useTheme();
   const handleDelete = async () => {
     try {
       await deleteChatHistory.mutateAsync(id);
-      alert("Deleted Successfully");
+      toast.success("Deleted successfully", { theme });
     } catch (e) {
-      alert("Something went wrong");
-      console.log({ e });
+      toast.error("Something went wrong", { theme });
     }
   };
 

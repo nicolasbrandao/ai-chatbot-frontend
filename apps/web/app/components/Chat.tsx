@@ -19,6 +19,8 @@ import useApiKey from "../hooks/useApiKey";
 import { Message } from "@/shared/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { useTheme } from "../hooks/useTheme";
 
 const Chat: React.FC = () => {
   const { id: rawId } = useParams();
@@ -31,6 +33,7 @@ const Chat: React.FC = () => {
   console.log({ chat, isLoading });
   const { mutateAsync: updateChatHistory } = useUpdateChat();
   const { mutateAsync: createChatHistory } = useCreateChat();
+  const { theme } = useTheme();
 
   const { apiKey } = useApiKey();
   const history: Message[] = chat?.history ?? [];
@@ -38,7 +41,7 @@ const Chat: React.FC = () => {
     useSubmitChatMessage();
   const { mutateAsync: builTitle } = useTitleFromHistory();
   const handleCompletion = async ({}) => {
-    if (!apiKey) return alert("Please enter an API key");
+    if (!apiKey) return toast.error("Please enter an API key", { theme });
     setMessage("");
     const humanMessage: Message = {
       type: "USER",
