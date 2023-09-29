@@ -12,12 +12,12 @@ export default async function SignIn() {
   const providers = (await getProviders()) ?? [];
 
   return (
-    <>
+    <div className="w-full flex flex-col items-center justify-center">
       {Object.values(providers).map((provider) => (
-        <div key={provider.name}>
+        <div className="mx-auto w-fit" key={provider.name}>
           <SignInButton provider={provider.id} />
         </div>
       ))}
-    </>
+    </div>
   );
 }

@@ -9,9 +9,11 @@ import {
 import { useChats } from "../hooks/useChatLocalApi";
 import ChatPreview from "./ChatPreview";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function HistoryMenu() {
   const { push } = useRouter();
+  const { data: session } = useSession();
   const { data: chats, isLoading } = useChats();
 
   // TODO: maybe we can do this another way
@@ -25,7 +27,7 @@ export default function HistoryMenu() {
     chats?.filter((chat) => isPreviousMonth(new Date(chat.created_at))) ?? [];
 
   return (
-    <div className="hidden md:menu p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content">
+    <div className={`hidden md:${!session ? "hidden" : "menu"} p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content`}>
       {isLoading ? (
         <span className="loading loading-spinner loading-lg m-auto" />
       ) : (
