@@ -10,7 +10,6 @@ import {
 import Drawer from "./Drawer";
 import { useEffect } from "react";
 import { themeChange } from "theme-change";
-import SignInButton from "./SignInButton";
 import ApiKeyComponent from "./ApiKey";
 import { useParams } from "next/navigation";
 import { useChat } from "../hooks/useChatLocalApi";
@@ -60,7 +59,9 @@ const NavBar: React.FC = ({}) => {
               />
             )
           ) : (
-            <SignInButton />
+            <button className="btn" onClick={() => push("/login")}>
+              Sign In
+            </button>
           )}
         </label>
         <ul
