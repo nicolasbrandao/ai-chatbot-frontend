@@ -97,9 +97,9 @@ const Chat: React.FC = () => {
 
   return (
     <>
-      <section className="flex flex-col w-full h-full md:min-w-[300px] p-1">
-        <div className="flex flex-col gap-4 w-full md:max-w-[800px] mx-auto">
-          <div className="min-h-full mb-[70px]">
+      <section className="flex flex-col w-full h-screen md:min-w-[300px] p-1 fixed top-[64px]">
+        <div className="flex flex-col gap-4 w-full md:max-w-[1000px] mx-auto">
+          <div className="h-chat-height md:ml-[325px] flex flex-col overflow-y-auto pb-4">
             {history
               .filter((message) => message.type !== "SYSTEM")
               .map((message, index) => {
@@ -122,13 +122,12 @@ const Chat: React.FC = () => {
               />
             )}
           </div>
-          <div className="flex gap-4 bg-base-300 fixed bottom-0 left-0 w-full py-2">
+          <div className="flex gap-4 bg-base-300 fixed bottom-0 right-0 w-full py-2">
             <div className="md:w-[310px]" />
             <form
               className="flex flex-start bg-base-300 gap-4 p-1 rounded-xl w-fit mx-auto md:flex-1 md:pr-4"
               onSubmit={async (e) => {
                 e.preventDefault();
-                console.log("submitting");
                 await handleCompletion({ message, history });
               }}
             >

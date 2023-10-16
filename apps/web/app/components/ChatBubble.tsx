@@ -150,7 +150,7 @@ export default function ChatBubble({
             </div>
           )}
         </div>
-        <div className="chat-footer opacity-50 flex gap-1">
+        <div className="chat-footer flex gap-1">
           <div
             className="flex gap-1 cursor-pointer"
             onClick={() => navigator.clipboard.writeText(message.message)}
@@ -167,7 +167,7 @@ export default function ChatBubble({
               </div>
             </>
           ) : (
-            <div className="dropdown">
+            <div className="dropdown dropdown-top">
               <label tabIndex={0}>
                 <BookOpenIcon className="h-4 w-4 mt-1 cursor-pointer" />
               </label>

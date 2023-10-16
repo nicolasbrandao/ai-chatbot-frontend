@@ -35,20 +35,12 @@ const NavBar: React.FC = ({}) => {
     <div
       className={`${
         !sessionData ? "hidden" : "navbar"
-      } bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-50 border-b border-base-200 ${
-        !sessionData ?? "hidden"
-      }`}
+      } bg-base-100 justify-between sticky flex gap-4 top-0 w-screen z-40 border-b border-base-200`}
     >
-      <button
-        className="w-[290px] hidden md:btn md:btn-primary"
-        onClick={() => push("/")}
-      >
-        <PlusIcon className="h-6 w-6" />
-        New Chat
-      </button>
       <div className="flex-none md:hidden">
         <Drawer />
       </div>
+      <div className="md:w-[310px]" />
       <div className="w-[150px] md:w-fit">
         <p className="text-xl truncate mx-auto">{title}</p>
       </div>

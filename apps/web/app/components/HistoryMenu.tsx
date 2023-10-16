@@ -10,6 +10,7 @@ import { useChats } from "../hooks/useChatLocalApi";
 import ChatPreview from "./ChatPreview";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 export default function HistoryMenu() {
   const { push } = useRouter();
@@ -30,12 +31,19 @@ export default function HistoryMenu() {
     <div
       className={`${
         session ? "hidden md:menu" : "hidden"
-      } p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content`}
+      } p-4 w-fit min-w-[307px] min-h-full bg-base-200 text-base-content z-50 fixed top-0 left-0`}
     >
       {isLoading ? (
         <span className="loading loading-spinner loading-lg m-auto" />
       ) : (
-        <ul className="w-full h-full">
+        <ul className="flex flex-col w-full h-screen overflow-y-auto">
+          <button
+            className="btn btn-primary btn-wide mx-auto"
+            onClick={() => push("/")}
+          >
+            <PlusIcon className="h-6 w-6" />
+            New Chat
+          </button>
           <>
             {todayChats.length > 0 && (
               <>
