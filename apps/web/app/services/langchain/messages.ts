@@ -93,7 +93,11 @@ export const buildTitleFromHistory = async ({
     return firstMessage.message;
   };
 
-  const model = new OpenAI({ openAIApiKey, temperature: 0 });
+  const model = new OpenAI({
+    openAIApiKey,
+    temperature: 0,
+    modelName: "gpt-3.5-turbo-instruct",
+  });
   const prompt = PromptTemplate.fromTemplate(
     "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}. Do not include prefixes like 'Title: '.",
   );
