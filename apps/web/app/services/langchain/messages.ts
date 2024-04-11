@@ -68,7 +68,7 @@ export const submitChatMessage = async ({
       memory,
       verbose: true,
       returnSourceDocuments: true,
-    },
+    }
   );
 
   let aiResponse = "";
@@ -93,13 +93,12 @@ export const buildTitleFromHistory = async ({
     return firstMessage.message;
   };
 
-  const model = new OpenAI({
+  const model = new ChatOpenAI({
     openAIApiKey,
-    temperature: 0,
-    modelName: "gpt-3.5-turbo-instruct",
+    modelName: "gpt-4",
   });
   const prompt = PromptTemplate.fromTemplate(
-    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}. Do not include prefixes like 'Title: '.",
+    "There's the first message from the user to the chat assistant, please provide a short and meaningful title for it {message}. Do not include prefixes like 'Title: ' and just answer the title explicitly nothing more."
   );
   const chainA = new LLMChain({ llm: model, prompt });
   const response = await chainA.call({ message: getFirstMessage(history) });
